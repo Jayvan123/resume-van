@@ -23,21 +23,21 @@ export const ResumePreview: React.FC = () => {
   }
 
   return (
-    <div className="h-full overflow-y-auto p-6 md:p-10">
+    <div className="h-full overflow-y-auto py-4 pl-2 pr-4">
       {/* A4/Letter paper sheet */}
       <div
         ref={previewRef}
         id="resume-preview-paper"
-        className="mx-auto max-w-[780px] min-h-[1000px] bg-white shadow-2xl rounded-sm px-10 py-10 text-slate-900"
+        className="mx-auto max-w-[660px] min-h-[900px] bg-white shadow-2xl rounded-sm px-8 py-8 text-slate-900"
         style={{ fontFamily: "'Times New Roman', Times, serif" }}
       >
         {/* ── Header ─────────────────────────────────── */}
-        <header className="border-b-2 border-slate-900 pb-4 mb-5 text-center">
-          <h1 className="text-[28px] font-extrabold tracking-tight leading-none text-slate-900 mb-2"
+        <header className="border-b-2 border-slate-900 pb-3 mb-4 text-center">
+          <h1 className="text-[24px] font-extrabold tracking-tight leading-none text-slate-900 mb-1.5"
               style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
             {data.personal.fullName || 'YOUR NAME'}
           </h1>
-          <div className="flex flex-wrap justify-center gap-x-4 gap-y-0.5 text-[12.5px] text-slate-600"
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-0.5 text-[12px] text-slate-600"
                style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
             {data.personal.email && <span>{data.personal.email}</span>}
             {data.personal.phone && (
@@ -51,7 +51,7 @@ export const ResumePreview: React.FC = () => {
 
         {/* ── Summary ─────────────────────────────────── */}
         {data.personal.summary && (
-          <section className="mb-5">
+          <section className="mb-4">
             <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2"
                 style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
               Professional Summary
@@ -64,7 +64,7 @@ export const ResumePreview: React.FC = () => {
 
         {/* ── Experience ───────────────────────────────── */}
         {data.experience.length > 0 && (
-          <section className="mb-5">
+          <section className="mb-4">
             <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3"
                 style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
               Work Experience
@@ -98,7 +98,7 @@ export const ResumePreview: React.FC = () => {
 
         {/* ── Education ───────────────────────────────── */}
         {data.education.length > 0 && (
-          <section className="mb-5">
+          <section className="mb-4">
             <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3"
                 style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
               Education
@@ -125,7 +125,7 @@ export const ResumePreview: React.FC = () => {
 
         {/* ── Skills ──────────────────────────────────── */}
         {data.skills.length > 0 && (
-          <section className="mb-5">
+          <section className="mb-4">
             <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2"
                 style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
               Skills

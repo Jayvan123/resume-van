@@ -1114,10 +1114,10 @@ video {
 .row-start-1{grid-row-start:1}
 .mx-auto{margin-left:auto;margin-right:auto}
 .mb-0\.5{margin-bottom:0.125rem}
+.mb-1\.5{margin-bottom:0.375rem}
 .mb-2{margin-bottom:0.5rem}
 .mb-3{margin-bottom:0.75rem}
 .mb-4{margin-bottom:1rem}
-.mb-5{margin-bottom:1.25rem}
 .ml-0\.5{margin-left:0.125rem}
 .ml-1\.5{margin-left:0.375rem}
 .mt-0\.5{margin-top:0.125rem}
@@ -1142,15 +1142,16 @@ video {
 .h-9{height:2.25rem}
 .h-full{height:100%}
 .min-h-16{min-height:4rem}
-.min-h-\[1000px\]{min-height:1000px}
 .min-h-\[100px\]{min-height:100px}
+.min-h-\[900px\]{min-height:900px}
 .min-h-screen{min-height:100vh}
-.w-2\/5{width:40%}
 .w-9{width:2.25rem}
+.w-\[45\%\]{width:45%}
+.w-\[55\%\]{width:55%}
 .w-fit{width:fit-content}
 .w-full{width:100%}
 .min-w-0{min-width:0px}
-.max-w-\[780px\]{max-width:780px}
+.max-w-\[660px\]{max-width:660px}
 .flex-1{flex:1 1 0%}
 .flex-shrink-0{flex-shrink:0}
 .shrink-0{flex-shrink:0}
@@ -1191,6 +1192,7 @@ video {
 .whitespace-nowrap{white-space:nowrap}
 .whitespace-pre-line{white-space:pre-line}
 .rounded{border-radius:0.25rem}
+.rounded-2xl{border-radius:1rem}
 .rounded-\[min\(var\(--radius-md\)\2c 10px\)\]{border-radius:min(var(--radius-md), 10px)}
 .rounded-\[min\(var\(--radius-md\)\2c 12px\)\]{border-radius:min(var(--radius-md), 12px)}
 .rounded-full{border-radius:9999px}
@@ -1204,7 +1206,6 @@ video {
 .border-b{border-bottom-width:1px}
 .border-b-2{border-bottom-width:2px}
 .border-l{border-left-width:1px}
-.border-r{border-right-width:1px}
 .border-t{border-top-width:1px}
 .border-dashed{border-style:dashed}
 .border-blue-100{--tw-border-opacity:1;border-color:rgb(219 234 254 / var(--tw-border-opacity, 1))}
@@ -1215,6 +1216,7 @@ video {
 .border-red-400{--tw-border-opacity:1;border-color:rgb(248 113 113 / var(--tw-border-opacity, 1))}
 .border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}
 .border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}
+.border-slate-200\/60{border-color:rgb(226 232 240 / 0.6)}
 .border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}
 .border-slate-900{--tw-border-opacity:1;border-color:rgb(15 23 42 / var(--tw-border-opacity, 1))}
 .border-transparent{border-color:transparent}
@@ -1228,6 +1230,7 @@ video {
 .bg-primary{background-color:var(--primary)}
 .bg-secondary{background-color:var(--secondary)}
 .bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}
+.bg-slate-100\/70{background-color:rgb(241 245 249 / 0.7)}
 .bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}
 .bg-slate-50\/60{background-color:rgb(248 250 252 / 0.6)}
 .bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}
@@ -1240,22 +1243,27 @@ video {
 .p-6{padding:1.5rem}
 .p-8{padding:2rem}
 .px-1\.5{padding-left:0.375rem;padding-right:0.375rem}
-.px-10{padding-left:2.5rem;padding-right:2.5rem}
 .px-2{padding-left:0.5rem;padding-right:0.5rem}
 .px-2\.5{padding-left:0.625rem;padding-right:0.625rem}
 .px-3{padding-left:0.75rem;padding-right:0.75rem}
 .px-3\.5{padding-left:0.875rem;padding-right:0.875rem}
 .px-4{padding-left:1rem;padding-right:1rem}
 .px-6{padding-left:1.5rem;padding-right:1.5rem}
+.px-8{padding-left:2rem;padding-right:2rem}
 .py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}
 .py-1{padding-top:0.25rem;padding-bottom:0.25rem}
-.py-10{padding-top:2.5rem;padding-bottom:2.5rem}
 .py-2{padding-top:0.5rem;padding-bottom:0.5rem}
 .py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}
 .py-3\.5{padding-top:0.875rem;padding-bottom:0.875rem}
+.py-4{padding-top:1rem;padding-bottom:1rem}
+.py-8{padding-top:2rem;padding-bottom:2rem}
 .pb-1{padding-bottom:0.25rem}
-.pb-4{padding-bottom:1rem}
+.pb-3{padding-bottom:0.75rem}
+.pl-2{padding-left:0.5rem}
 .pl-3{padding-left:0.75rem}
+.pl-4{padding-left:1rem}
+.pr-2{padding-right:0.5rem}
+.pr-4{padding-right:1rem}
 .text-center{text-align:center}
 .font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
 .text-5xl{font-size:3rem;line-height:1}
@@ -1265,7 +1273,7 @@ video {
 .text-\[12px\]{font-size:12px}
 .text-\[13\.5px\]{font-size:13.5px}
 .text-\[13px\]{font-size:13px}
-.text-\[28px\]{font-size:28px}
+.text-\[24px\]{font-size:24px}
 .text-base{font-size:1rem;line-height:1.5rem}
 .text-lg{font-size:1.125rem;line-height:1.75rem}
 .text-sm{font-size:0.875rem;line-height:1.25rem}
@@ -1304,6 +1312,7 @@ video {
 .underline-offset-4{text-underline-offset:4px}
 .shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}
 .shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}
+.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}
 .outline-none{outline:2px solid transparent;outline-offset:2px}
 .outline{outline-style:solid}
 .ring-1{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}
@@ -1355,7 +1364,7 @@ video {
 .data-\[size\=sm\]\:\[--card-spacing\:--spacing\(3\)\][data-size="sm"]{--card-spacing:var(--spacing(3))}
 .group\/card[data-size="sm"] .group-data-\[size\=sm\]\/card\:text-sm{font-size:0.875rem;line-height:1.25rem}
 .dark\:border-input:is(.dark *){border-color:var(--input)}
-@media (min-width: 768px){.md\:p-10{padding:2.5rem}.md\:text-sm{font-size:0.875rem;line-height:1.25rem}}
+@media (min-width: 768px){.md\:text-sm{font-size:0.875rem;line-height:1.25rem}}
 .\[\&\>svg\]\:pointer-events-none>svg{pointer-events:none}
 .\[\&_svg\:not\(\[class\*\=\'size-\'\]\)\]\:size-3 svg:not([class*='size-']){width:0.75rem;height:0.75rem}
 .\[\&_svg\:not\(\[class\*\=\'size-\'\]\)\]\:size-3\.5 svg:not([class*='size-']){width:0.875rem;height:0.875rem}
