@@ -259,16 +259,17 @@ const ResumePreview: React.FC = () => {
           <h1 className="text-[24px] font-extrabold tracking-tight leading-none text-slate-900 mb-1.5">
             {data.personal.fullName || 'YOUR NAME'}
           </h1>
-          {data.personal.title && (
+          {data.personal.titles && data.personal.titles.length > 0 && (
             <div className="text-[13px] font-bold text-slate-800 uppercase tracking-[0.08em] mb-2">
-              {data.personal.title}
+              {data.personal.titles.join(' | ')}
             </div>
           )}
           <div className="flex flex-wrap justify-center gap-x-3 gap-y-0.5 text-[12px] text-slate-600">
             {[
               data.personal.location,
               data.personal.email,
-              data.personal.phone
+              data.personal.phone,
+              ...(data.personal.links || [])
             ]
               .filter(Boolean)
               .map((item, idx, arr) => (

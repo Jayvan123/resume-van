@@ -18,12 +18,12 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({ data, selectedFont }) 
         {/* Header */}
         <View style={pdfStyles.headerContainer}>
           <Text style={pdfStyles.fullName}>{personal.fullName || 'Your Name'}</Text>
-          {personal.title ? (
-            <Text style={pdfStyles.titleText}>{personal.title}</Text>
+          {personal.titles && personal.titles.length > 0 ? (
+            <Text style={pdfStyles.titleText}>{personal.titles.join('  |  ')}</Text>
           ) : null}
           <View style={pdfStyles.contactDetails}>
             <Text>
-              {[personal.location, personal.email, personal.phone]
+              {[personal.location, personal.email, personal.phone, ...(personal.links || [])]
                 .filter(Boolean)
                 .join('  |  ')}
             </Text>

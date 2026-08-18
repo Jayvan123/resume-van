@@ -3,10 +3,11 @@ import { ResumeData } from '@/types/resume.types';
 export const sampleResume: ResumeData = {
   personal: {
     fullName: 'Sarah Johnson',
-    title: 'Senior Product Manager | SaaS | Product Strategy',
+    titles: ['Senior Product Manager', 'SaaS', 'Product Strategy'],
     email: 'sarah.johnson@email.com',
     phone: '+1 (555) 123-4567',
     location: 'San Francisco, CA',
+    links: ['linkedin.com/in/sarahjohnson'],
     summary:
       'Results-driven Product Manager with 6+ years of experience in SaaS and B2B products. Led cross-functional teams to deliver 3 major product launches, driving 40% revenue growth. Expert in agile methodologies, user research, and go-to-market strategy.',
   },

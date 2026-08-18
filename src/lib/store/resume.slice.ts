@@ -5,7 +5,7 @@ import { ResumeData, PersonalInfo, ExperienceEntry, EducationEntry, TabId } from
 import { sampleResume } from '@/constants/sampleData';
 
 const initialState: ResumeData = {
-  personal: { fullName: '', title: '', email: '', phone: '', location: '', summary: '' },
+  personal: { fullName: '', titles: [], email: '', phone: '', location: '', links: [], summary: '' },
   experience: [],
   education: [],
   skills: [],
@@ -21,8 +21,12 @@ interface ResumeStore {
   isDownloading: boolean;
 
   // Personal actions
-  updatePersonal: (field: keyof PersonalInfo, value: string) => void;
+  updatePersonal: (field: keyof PersonalInfo, value: any) => void;
   setPersonal: (data: Partial<PersonalInfo>) => void;
+  addTitle: (title: string) => void;
+  removeTitle: (index: number) => void;
+  addLink: (link: string) => void;
+  removeLink: (index: number) => void;
 
   // Experience actions
   addExperience: (experience: Omit<ExperienceEntry, 'id'>) => void;
@@ -67,6 +71,37 @@ export const useResumeStore = create<ResumeStore>()(
         setPersonal: (data) =>
           set((state) => {
             Object.assign(state.data.personal, data);
+          }),
+
+        addTitle: (title) =>
+          set((state) => {
+            const trimmed = title.trim();
+            if (trimmed && !state.data.personal.titles.includes(trimmed)) {
+              state.data.personal.titles.push(trimmed);
+            }
+          }),
+
+        removeTitle: (index) =>
+          set((state) => {
+            state.data.personal.titles.splice(index, 1);
+          }),
+
+        addLink: (link) =>
+          set((state) => {
+            const trimmed = link.trim();
+            if (!state.data.personal.links) {
+              state.data.personal.links = [];
+            }
+            if (trimmed && !state.data.personal.links.includes(trimmed)) {
+              state.data.personal.links.push(trimmed);
+            }
+          }),
+
+        removeLink: (index) =>
+          set((state) => {
+            if (state.data.personal.links) {
+              state.data.personal.links.splice(index, 1);
+            }
           }),
 
         addExperience: (experience) =>

@@ -4,10 +4,11 @@
 
 export interface PersonalInfo {
   fullName: string;
-  title?: string;
+  titles: string[];
   email: string;
   phone: string;
   location: string;
+  links?: string[];
   summary: string;
 }
 

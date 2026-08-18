@@ -2,10 +2,11 @@ import { z } from 'zod';
 
 export const personalSchema = z.object({
   fullName: z.string().min(1, 'Full name is required'),
-  title: z.string().optional(),
+  titles: z.array(z.string()).optional(),
   email: z.string().email('Invalid email address'),
   phone: z.string().min(1, 'Phone number is required'),
   location: z.string().min(1, 'Location is required'),
+  links: z.array(z.string()).optional(),
   summary: z.string().min(20, 'Summary should be at least 20 characters'),
 });
 
