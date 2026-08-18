@@ -53,6 +53,17 @@ export const PersonalTab: React.FC = () => {
           )}
         </div>
 
+        <div className="space-y-1">
+          <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide">
+            Title / Headline
+          </label>
+          <Input
+            {...register('title')}
+            placeholder="Senior Product Manager | SaaS | Product Strategy"
+            className={inputClass}
+          />
+        </div>
+
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
             <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide">

@@ -3,6 +3,7 @@ import { ResumeData } from '@/types/resume.types';
 export const sampleResume: ResumeData = {
   personal: {
     fullName: 'Sarah Johnson',
+    title: 'Senior Product Manager | SaaS | Product Strategy',
     email: 'sarah.johnson@email.com',
     phone: '+1 (555) 123-4567',
     location: 'San Francisco, CA',

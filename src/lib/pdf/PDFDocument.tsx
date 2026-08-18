@@ -1,14 +1,16 @@
 import React from 'react';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
 import { ResumeData } from '@/types/resume.types';
-import { pdfStyles } from './styles';
+import { getPdfStyles } from './styles';
 
 interface PDFDocumentProps {
   data: ResumeData;
+  selectedFont: string;
 }
 
-export const PDFDocument: React.FC<PDFDocumentProps> = ({ data }) => {
+export const PDFDocument: React.FC<PDFDocumentProps> = ({ data, selectedFont }) => {
   const { personal, experience, education, skills, certifications } = data;
+  const pdfStyles = getPdfStyles(selectedFont);
 
   return (
     <Document>
@@ -16,10 +18,15 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({ data }) => {
         {/* Header */}
         <View style={pdfStyles.headerContainer}>
           <Text style={pdfStyles.fullName}>{personal.fullName || 'Your Name'}</Text>
+          {personal.title ? (
+            <Text style={pdfStyles.titleText}>{personal.title}</Text>
+          ) : null}
           <View style={pdfStyles.contactDetails}>
-            {personal.email ? <Text>{personal.email}</Text> : null}
-            {personal.phone ? <Text>  •  {personal.phone}</Text> : null}
-            {personal.location ? <Text>  •  {personal.location}</Text> : null}
+            <Text>
+              {[personal.location, personal.email, personal.phone]
+                .filter(Boolean)
+                .join('  |  ')}
+            </Text>
           </View>
         </View>
 

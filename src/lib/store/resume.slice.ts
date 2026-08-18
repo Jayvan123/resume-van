@@ -5,7 +5,7 @@ import { ResumeData, PersonalInfo, ExperienceEntry, EducationEntry, TabId } from
 import { sampleResume } from '@/constants/sampleData';
 
 const initialState: ResumeData = {
-  personal: { fullName: '', email: '', phone: '', location: '', summary: '' },
+  personal: { fullName: '', title: '', email: '', phone: '', location: '', summary: '' },
   experience: [],
   education: [],
   skills: [],
@@ -17,6 +17,7 @@ interface ResumeStore {
   data: ResumeData;
   // UI state
   activeTab: TabId;
+  selectedFont: string;
   isDownloading: boolean;
 
   // Personal actions
@@ -45,6 +46,7 @@ interface ResumeStore {
   resetAll: () => void;
   loadSampleData: () => void;
   setActiveTab: (tab: TabId) => void;
+  setFontStyle: (font: string) => void;
   setIsDownloading: (value: boolean) => void;
 }
 
@@ -54,6 +56,7 @@ export const useResumeStore = create<ResumeStore>()(
       (set) => ({
         data: initialState,
         activeTab: 'personal',
+        selectedFont: 'Poppins',
         isDownloading: false,
 
         updatePersonal: (field, value) =>
@@ -145,6 +148,11 @@ export const useResumeStore = create<ResumeStore>()(
             state.activeTab = tab;
           }),
 
+        setFontStyle: (font) =>
+          set((state) => {
+            state.selectedFont = font;
+          }),
+
         setIsDownloading: (value) =>
           set((state) => {
             state.isDownloading = value;
@@ -154,7 +162,7 @@ export const useResumeStore = create<ResumeStore>()(
         name: 'resume-van-storage',
         version: 1,
         // Only persist data, not transient UI state
-        partialize: (state) => ({ data: state.data }),
+        partialize: (state) => ({ data: state.data, selectedFont: state.selectedFont }),
       }
     )
   )

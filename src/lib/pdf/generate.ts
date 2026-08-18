@@ -3,15 +3,15 @@ import React from 'react';
 import { ResumeData } from '@/types/resume.types';
 import { PDFDocument } from './PDFDocument';
 
-export const generatePDF = async (data: ResumeData): Promise<Blob> => {
-  const doc = React.createElement(PDFDocument, { data });
+export const generatePDF = async (data: ResumeData, selectedFont: string): Promise<Blob> => {
+  const doc = React.createElement(PDFDocument, { data, selectedFont });
   const blobInstance = pdf(doc as any);
   return await blobInstance.toBlob();
 };
 
-export const downloadPDF = async (data: ResumeData): Promise<void> => {
+export const downloadPDF = async (data: ResumeData, selectedFont: string): Promise<void> => {
   try {
-    const blob = await generatePDF(data);
+    const blob = await generatePDF(data, selectedFont);
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;

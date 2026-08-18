@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download, RefreshCw } from 'lucide-react';
+import { Download, RefreshCw, ChevronDown } from 'lucide-react';
 import { TABS } from '@/constants/tabs';
 import { TabId } from '@/types/resume.types';
 import { useResumeStore } from '@/lib/store/resume.slice';
@@ -31,18 +31,88 @@ const renderTabContent = (activeTab: TabId) => {
   }
 };
 
-/** Slim top bar: title + subtitle on the left, Load/Clear buttons on the right. */
+const FONT_OPTIONS = ['Poppins', 'Calibri', 'Arial', 'Helvetica', 'Times New Roman', 'Georgia', 'Cambria'];
+
+const FontSelector: React.FC<{
+  selectedFont: string;
+  onFontChange: (font: string) => void;
+}> = ({ selectedFont, onFontChange }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={dropdownRef} className="relative flex items-center gap-2">
+      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Font:</span>
+      <div className="relative">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center justify-between gap-2 min-w-[140px] text-sm font-medium text-slate-700 bg-white border border-slate-200 hover:border-slate-300 rounded-xl px-3.5 py-2 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-slate-900/10 active:scale-[0.98]"
+        >
+          <span>{selectedFont}</span>
+          <ChevronDown
+            size={14}
+            className={`text-slate-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          />
+        </button>
+
+        <div
+          className={`absolute right-0 mt-1.5 min-w-[150px] bg-white border border-slate-200/80 shadow-lg rounded-xl overflow-hidden py-1 z-50 transition-all duration-200 origin-top-right ${
+            isOpen
+              ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+              : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
+          }`}
+        >
+          {FONT_OPTIONS.map((font) => (
+            <button
+              key={font}
+              onClick={() => {
+                onFontChange(font);
+                setIsOpen(false);
+              }}
+              className={`w-full text-left px-3.5 py-2 text-sm font-medium transition-colors ${
+                selectedFont === font
+                  ? 'bg-slate-100 text-slate-900'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+              }`}
+            >
+              {font}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/** Slim top bar: title + subtitle on the left, font selector + buttons on the right. */
 const TopBar: React.FC<{
   onLoadSample: () => void;
   onClear: () => void;
   hasData: boolean;
-}> = ({ onLoadSample, onClear, hasData }) => (
+  selectedFont: string;
+  onFontChange: (font: string) => void;
+}> = ({ onLoadSample, onClear, hasData, selectedFont, onFontChange }) => (
   <div className="flex items-center justify-between px-6 py-6">
     <div>
       <h1 className="text-4xl font-bold tracking-tight text-slate-900 leading-none">ResumeVan</h1>
       <p className="text-sm text-slate-500 mt-2">ATS-Optimized Resume Builder</p>
     </div>
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3">
+      {/* Custom Font Selector */}
+      <FontSelector selectedFont={selectedFont} onFontChange={onFontChange} />
+
+      <div className="h-6 w-px bg-slate-200" /> {/* Divider */}
+
       {hasData ? (
         <button
           onClick={onClear}
@@ -164,42 +234,54 @@ const LeftPanel: React.FC<{
   );
 };
 
+const FONT_MAPPING: Record<string, string> = {
+  'Poppins': "'Poppins', sans-serif",
+  'Calibri': "Calibri, Candara, Segoe, 'Segoe UI', Optima, Arial, sans-serif",
+  'Arial': "Arial, 'Helvetica Neue', Helvetica, sans-serif",
+  'Helvetica': "'Helvetica Neue', Helvetica, Arial, sans-serif",
+  'Times New Roman': "'Times New Roman', Times, Baskerville, Georgia, serif",
+  'Georgia': "Georgia, yingmar, serif",
+  'Cambria': "Cambria, Georgia, serif",
+};
+
 const ResumePreview: React.FC = () => {
-  const { data } = useResumeStore();
+  const { data, selectedFont } = useResumeStore();
+  const fontStyle = FONT_MAPPING[selectedFont] || "Arial, sans-serif";
 
   return (
     <div className="py-6 pl-2 pr-4">
       <div
         id="resume-preview-paper"
         className="mx-auto max-w-[660px] min-h-[900px] bg-white border border-slate-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.06)] px-10 py-10 text-slate-900"
-        style={{ fontFamily: "'Times New Roman', Times, serif" }}
+        style={{ fontFamily: fontStyle }}
       >
         <header className="pb-3 mb-4 text-center">
-          <h1
-            className="text-[24px] font-extrabold tracking-tight leading-none text-slate-900 mb-1.5"
-            style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
-          >
+          <h1 className="text-[24px] font-extrabold tracking-tight leading-none text-slate-900 mb-1.5">
             {data.personal.fullName || 'YOUR NAME'}
           </h1>
-          <div
-            className="flex flex-wrap justify-center gap-x-4 gap-y-0.5 text-[12px] text-slate-600"
-            style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
-          >
-            {data.personal.email && <span>{data.personal.email}</span>}
-            {data.personal.phone && (
-              <><span className="text-slate-300">•</span><span>{data.personal.phone}</span></>
-            )}
-            {data.personal.location && (
-              <><span className="text-slate-300">•</span><span>{data.personal.location}</span></>
-            )}
+          {data.personal.title && (
+            <div className="text-[13px] font-bold text-slate-800 uppercase tracking-[0.08em] mb-2">
+              {data.personal.title}
+            </div>
+          )}
+          <div className="flex flex-wrap justify-center gap-x-3 gap-y-0.5 text-[12px] text-slate-600">
+            {[
+              data.personal.location,
+              data.personal.email,
+              data.personal.phone
+            ]
+              .filter(Boolean)
+              .map((item, idx, arr) => (
+                <React.Fragment key={idx}>
+                  <span>{item}</span>
+                  {idx < arr.length - 1 && <span className="text-slate-300">|</span>}
+                </React.Fragment>
+              ))}
           </div>
         </header>
 
         <section className="mb-4">
-          <h2
-            className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2"
-            style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
-          >
+          <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
             Professional Summary
           </h2>
           <p className="text-[13px] leading-relaxed text-slate-700">
@@ -208,10 +290,7 @@ const ResumePreview: React.FC = () => {
         </section>
 
         <section className="mb-4">
-          <h2
-            className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3"
-            style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
-          >
+          <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3">
             Work Experience
           </h2>
           <div className="space-y-4">
@@ -219,18 +298,12 @@ const ResumePreview: React.FC = () => {
               <div key={exp.id}>
                 <div className="flex items-baseline justify-between gap-4 mb-0.5">
                   <div>
-                    <span
-                      className="text-[13.5px] font-bold text-slate-900"
-                      style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
-                    >
+                    <span className="text-[13.5px] font-bold text-slate-900">
                       {exp.role}
                     </span>
                     <span className="text-[13px] text-slate-600 ml-1.5">— {exp.company}</span>
                   </div>
-                  <span
-                    className="text-[12px] text-slate-500 whitespace-nowrap flex-shrink-0"
-                    style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
-                  >
+                  <span className="text-[12px] text-slate-500 whitespace-nowrap flex-shrink-0">
                     {exp.dates}
                   </span>
                 </div>
@@ -245,28 +318,19 @@ const ResumePreview: React.FC = () => {
         </section>
 
         <section className="mb-4">
-          <h2
-            className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3"
-            style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
-          >
+          <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3">
             Education
           </h2>
           <div className="space-y-2.5">
             {data.education.map((edu) => (
               <div key={edu.id} className="flex items-baseline justify-between gap-4">
                 <div>
-                  <span
-                    className="text-[13.5px] font-bold text-slate-900"
-                    style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
-                  >
+                  <span className="text-[13.5px] font-bold text-slate-900">
                     {edu.school}
                   </span>
                   <p className="text-[12.5px] text-slate-600 mt-0.5">{edu.degree}</p>
                 </div>
-                <span
-                  className="text-[12px] text-slate-500 whitespace-nowrap flex-shrink-0"
-                  style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
-                >
+                <span className="text-[12px] text-slate-500 whitespace-nowrap flex-shrink-0">
                   {edu.dates}
                 </span>
               </div>
@@ -275,10 +339,7 @@ const ResumePreview: React.FC = () => {
         </section>
 
         <section className="mb-4">
-          <h2
-            className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2"
-            style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
-          >
+          <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
             Skills
           </h2>
           <p className="text-[13px] leading-relaxed text-slate-700">
@@ -287,10 +348,7 @@ const ResumePreview: React.FC = () => {
         </section>
 
         <section>
-          <h2
-            className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2"
-            style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
-          >
+          <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
             Certifications
           </h2>
           <ul className="list-disc list-inside text-[13px] text-slate-700 space-y-1">
@@ -305,7 +363,7 @@ const ResumePreview: React.FC = () => {
 };
 
 export const ResumeBuilder: React.FC = () => {
-  const { data, loadSampleData, resetAll, isDownloading, setIsDownloading } = useResumeStore();
+  const { data, loadSampleData, resetAll, selectedFont, setFontStyle, isDownloading, setIsDownloading } = useResumeStore();
 
   const hasData =
     data.personal.fullName !== '' ||
@@ -315,7 +373,7 @@ export const ResumeBuilder: React.FC = () => {
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
-      await downloadPDF(data);
+      await downloadPDF(data, selectedFont);
     } finally {
       setIsDownloading(false);
     }
@@ -323,7 +381,13 @@ export const ResumeBuilder: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      <TopBar onLoadSample={loadSampleData} onClear={resetAll} hasData={hasData} />
+      <TopBar
+        onLoadSample={loadSampleData}
+        onClear={resetAll}
+        hasData={hasData}
+        selectedFont={selectedFont}
+        onFontChange={setFontStyle}
+      />
 
       {/* Equal-width split screen: editor (left) / live preview (right) */}
       <div className="flex-1 flex items-stretch">
