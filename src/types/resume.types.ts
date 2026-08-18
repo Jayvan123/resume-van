@@ -38,5 +38,4 @@ export type TabId = 'personal' | 'experience' | 'education' | 'skills' | 'certif
 export interface TabConfig {
   id: TabId;
   label: string;
-  icon: string;
 }

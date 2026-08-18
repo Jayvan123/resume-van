@@ -58,24 +58,24 @@ export const EducationTab: React.FC = () => {
           {data.education.map((edu) => (
             <div
               key={edu.id}
-              className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 shadow-sm"
+              className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-slate-800 text-sm">{edu.school}</p>
                   <p className="text-xs text-slate-500 mt-0.5">{edu.degree} · {edu.dates}</p>
                 </div>
-                <div className="flex items-center gap-1.5 flex-shrink-0">
+                <div className="flex items-center gap-1 flex-shrink-0">
                   <button
                     onClick={() => handleEdit(edu.id)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                    className="p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                     title="Edit"
                   >
                     <Pencil size={13} />
                   </button>
                   <button
                     onClick={() => removeEducation(edu.id)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    className="p-1.5 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                     title="Delete"
                   >
                     <Trash2 size={13} />
@@ -91,10 +91,13 @@ export const EducationTab: React.FC = () => {
       {showForm ? (
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-3 rounded-xl border border-blue-200 bg-blue-50/40 p-4"
+          className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-md"
         >
-          <h4 className="text-sm font-semibold text-slate-700">
-            {editingId ? '✏️ Edit Education' : '➕ New Education'}
+          <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-white">
+              {editingId ? <Pencil size={12} /> : <Plus size={12} />}
+            </span>
+            {editingId ? 'Edit Education' : 'New Education'}
           </h4>
 
           <div>
@@ -128,7 +131,7 @@ export const EducationTab: React.FC = () => {
           <div className="flex gap-2">
             <button
               type="submit"
-              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition-colors hover:bg-black"
             >
               <Check size={14} />
               {editingId ? 'Update' : 'Add'}
@@ -136,7 +139,7 @@ export const EducationTab: React.FC = () => {
             <button
               type="button"
               onClick={handleCancel}
-              className="flex items-center gap-1.5 border border-slate-200 hover:bg-slate-100 text-slate-600 text-sm font-medium px-3 py-2 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100"
             >
               <X size={14} />
               Cancel
@@ -146,7 +149,7 @@ export const EducationTab: React.FC = () => {
       ) : (
         <button
           onClick={() => { reset(); setEditingId(null); setShowForm(true); }}
-          className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-500 hover:text-blue-600 text-sm font-medium py-3.5 rounded-xl transition-all"
+          className="w-full flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 py-3.5 text-sm font-medium text-slate-500 transition-all hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900"
         >
           <Plus size={16} />
           Add Education

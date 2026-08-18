@@ -1,9 +1,9 @@
 import { TabConfig } from '@/types/resume.types';
 
 export const TABS: TabConfig[] = [
-  { id: 'personal', label: 'Personal', icon: '👤' },
-  { id: 'experience', label: 'Experience', icon: '💼' },
-  { id: 'education', label: 'Education', icon: '🎓' },
-  { id: 'skills', label: 'Skills', icon: '🛠️' },
-  { id: 'certifications', label: 'Certifications', icon: '📜' },
+  { id: 'personal', label: 'Personal' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'education', label: 'Education' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'certifications', label: 'Certifications' },
 ];

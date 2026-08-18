@@ -34,7 +34,7 @@ export const SkillsTab: React.FC = () => {
         />
         <button
           onClick={handleAdd}
-          className="flex items-center gap-1 bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold px-3.5 py-2 rounded-lg transition-colors"
+          className="flex items-center gap-1 rounded-xl bg-slate-900 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition-colors hover:bg-black"
         >
           <Plus size={15} />
           Add
@@ -42,12 +42,12 @@ export const SkillsTab: React.FC = () => {
       </div>
 
       {data.skills.length > 0 ? (
-        <div className="flex flex-wrap gap-2 rounded-xl border border-slate-200 bg-slate-50/60 p-4 min-h-[100px]">
+        <div className="flex min-h-[100px] flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           {data.skills.map((skill, index) => (
             <Badge
               key={index}
               variant="secondary"
-              className="flex items-center gap-1.5 px-3 py-1 text-sm font-medium bg-blue-50 text-blue-700 border border-blue-100 hover:bg-blue-100 transition-colors rounded-full"
+              className="flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100"
             >
               {skill}
               <button
@@ -61,14 +61,14 @@ export const SkillsTab: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border-2 border-dashed border-slate-200 p-8 text-center text-slate-400">
+        <div className="rounded-2xl border-2 border-dashed border-slate-200 p-8 text-center text-slate-400">
           <p className="text-sm font-medium">No skills added yet</p>
           <p className="text-xs mt-1">Start typing above to add your skills</p>
         </div>
       )}
 
       <p className="text-xs text-slate-400">
-        💡 Add skills one at a time, or press <kbd className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono">Enter</kbd> after each one
+        Add skills one at a time, or press <kbd className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono">Enter</kbd> after each one
       </p>
     </div>
   );
