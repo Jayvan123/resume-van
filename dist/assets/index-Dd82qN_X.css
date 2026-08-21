@@ -1132,6 +1132,7 @@ video {
 .col-start-2{grid-column-start:2}
 .row-span-2{grid-row:span 2 / span 2}
 .row-start-1{grid-row-start:1}
+.mx-4{margin-left:1rem;margin-right:1rem}
 .mx-auto{margin-left:auto;margin-right:auto}
 .mb-0\.5{margin-bottom:0.125rem}
 .mb-1\.5{margin-bottom:0.375rem}
@@ -1222,7 +1223,6 @@ video {
 .gap-2{gap:0.5rem}
 .gap-2\.5{gap:0.625rem}
 .gap-3{gap:0.75rem}
-.gap-3\.5{gap:0.875rem}
 .gap-4{gap:1rem}
 .gap-6{gap:1.5rem}
 .gap-x-3{column-gap:0.75rem}
@@ -1261,7 +1261,6 @@ video {
 .border-amber-100{--tw-border-opacity:1;border-color:rgb(254 243 199 / var(--tw-border-opacity, 1))}
 .border-blue-100{--tw-border-opacity:1;border-color:rgb(219 234 254 / var(--tw-border-opacity, 1))}
 .border-border{border-color:var(--border)}
-.border-indigo-100{--tw-border-opacity:1;border-color:rgb(224 231 255 / var(--tw-border-opacity, 1))}
 .border-indigo-200{--tw-border-opacity:1;border-color:rgb(199 210 254 / var(--tw-border-opacity, 1))}
 .border-indigo-300{--tw-border-opacity:1;border-color:rgb(165 180 252 / var(--tw-border-opacity, 1))}
 .border-input{border-color:var(--input)}
@@ -1328,6 +1327,7 @@ video {
 .py-8{padding-top:2rem;padding-bottom:2rem}
 .pb-1{padding-bottom:0.25rem}
 .pb-3{padding-bottom:0.75rem}
+.pb-4{padding-bottom:1rem}
 .pl-2{padding-left:0.5rem}
 .pl-3{padding-left:0.75rem}
 .pl-4{padding-left:1rem}
@@ -1337,7 +1337,7 @@ video {
 .pt-1{padding-top:0.25rem}
 .text-left{text-align:left}
 .text-center{text-align:center}
-.text-5xl{font-size:3rem;line-height:1}
+.text-3xl{font-size:1.875rem;line-height:2.25rem}
 .text-\[0\.8rem\]{font-size:0.8rem}
 .text-\[10px\]{font-size:10px}
 .text-\[11px\]{font-size:11px}
@@ -1466,6 +1466,7 @@ video {
 .hover\:text-rose-600:hover{--tw-text-opacity:1;color:rgb(225 29 72 / var(--tw-text-opacity, 1))}
 .hover\:text-slate-500:hover{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}
 .hover\:text-slate-600:hover{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}
+.hover\:text-slate-700:hover{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}
 .hover\:text-slate-800:hover{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}
 .hover\:text-slate-900:hover{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}
 .hover\:underline:hover{text-decoration-line:underline}
@@ -1510,7 +1511,7 @@ video {
 .data-\[size\=sm\]\:\[--card-spacing\:--spacing\(3\)\][data-size="sm"]{--card-spacing:var(--spacing(3))}
 .group\/card[data-size="sm"] .group-data-\[size\=sm\]\/card\:text-sm{font-size:0.875rem;line-height:1.25rem}
 .dark\:border-input:is(.dark *){border-color:var(--input)}
-@media (min-width: 768px){.md\:text-sm{font-size:0.875rem;line-height:1.25rem}}
+@media (min-width: 768px){.md\:block{display:block}.md\:flex{display:flex}.md\:hidden{display:none}.md\:w-auto{width:auto}.md\:gap-3{gap:0.75rem}.md\:p-6{padding:1.5rem}.md\:px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.md\:px-6{padding-left:1.5rem;padding-right:1.5rem}.md\:py-2{padding-top:0.5rem;padding-bottom:0.5rem}.md\:py-4{padding-top:1rem;padding-bottom:1rem}.md\:py-6{padding-top:1.5rem;padding-bottom:1.5rem}.md\:text-5xl{font-size:3rem;line-height:1}.md\:text-sm{font-size:0.875rem;line-height:1.25rem}}
 .\[\&\>svg\]\:pointer-events-none>svg{pointer-events:none}
 .\[\&_svg\:not\(\[class\*\=\'size-\'\]\)\]\:size-3 svg:not([class*='size-']){width:0.75rem;height:0.75rem}
 .\[\&_svg\:not\(\[class\*\=\'size-\'\]\)\]\:size-3\.5 svg:not([class*='size-']){width:0.875rem;height:0.875rem}
