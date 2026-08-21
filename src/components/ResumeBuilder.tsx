@@ -9,6 +9,7 @@ import { ExperienceTab } from './left-panel/tabs/ExperienceTab';
 import { EducationTab } from './left-panel/tabs/EducationTab';
 import { SkillsTab } from './left-panel/tabs/SkillsTab';
 import { CertificationsTab } from './left-panel/tabs/CertificationsTab';
+import { AiAssistTab } from './left-panel/tabs/AiAssistTab';
 
 /**
  * ResumeBuilder
@@ -27,6 +28,7 @@ const renderTabContent = (activeTab: TabId) => {
     case 'education': return <EducationTab />;
     case 'skills': return <SkillsTab />;
     case 'certifications': return <CertificationsTab />;
+    case 'ai-assist': return <AiAssistTab />;
     default: return <PersonalTab />;
   }
 };
@@ -104,8 +106,8 @@ const TopBar: React.FC<{
 }> = ({ onLoadSample, onClear, hasData, selectedFont, onFontChange }) => (
   <div className="flex items-center justify-between px-6 py-6">
     <div>
-      <h1 className="text-4xl font-bold tracking-tight text-slate-900 leading-none">ResumeVan</h1>
-      <p className="text-sm text-slate-500 mt-2">ATS-Optimized Resume Builder</p>
+      <h1 className="text-5xl font-extrabold tracking-tight text-slate-950 leading-none">ResumeVan</h1>
+      <p className="text-lg text-slate-600 mt-2.5">ATS-Optimized Resume Builder</p>
     </div>
     <div className="flex items-center gap-3">
       {/* Custom Font Selector */}
@@ -205,7 +207,7 @@ const LeftPanel: React.FC<{
   return (
     <div className="flex flex-col h-full">
       <TabNav activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="flex-1 overflow-y-auto p-6 bg-slate-50">
+      <div className="flex-1 overflow-y-auto p-6 bg-white">
         {renderTabContent(activeTab)}
       </div>
       <div className="flex flex-shrink-0 items-center justify-between gap-3 border-t border-slate-200 bg-white px-6 py-4">

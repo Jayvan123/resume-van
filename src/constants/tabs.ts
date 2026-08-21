@@ -6,4 +6,5 @@ export const TABS: TabConfig[] = [
   { id: 'education', label: 'Education' },
   { id: 'skills', label: 'Skills' },
   { id: 'certifications', label: 'Certifications' },
+  { id: 'ai-assist', label: 'AI Assist' },
 ];

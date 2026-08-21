@@ -35,7 +35,7 @@ export interface ResumeData {
   certifications: string[];
 }
 
-export type TabId = 'personal' | 'experience' | 'education' | 'skills' | 'certifications';
+export type TabId = 'personal' | 'experience' | 'education' | 'skills' | 'certifications' | 'ai-assist';
 
 export interface TabConfig {
   id: TabId;
