@@ -9,16 +9,20 @@ export const generatePDF = async (data: ResumeData, selectedFont: string): Promi
   return await blobInstance.toBlob();
 };
 
-export const downloadPDF = async (data: ResumeData, selectedFont: string): Promise<void> => {
+export const downloadPDF = async (data: ResumeData, selectedFont: string, customFileName?: string): Promise<void> => {
   try {
     const blob = await generatePDF(data, selectedFont);
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
 
-    const fileName = data.personal.fullName
-      ? `${data.personal.fullName.replace(/\s+/g, '_')}_Resume.pdf`
-      : 'Resume.pdf';
+    let fileName = 'Resume.pdf';
+    if (customFileName) {
+      const sanitized = customFileName.trim().replace(/\s+/g, '_');
+      fileName = sanitized.toLowerCase().endsWith('.pdf') ? sanitized : `${sanitized}.pdf`;
+    } else if (data.personal.fullName) {
+      fileName = `${data.personal.fullName.replace(/\s+/g, '_')}_Resume.pdf`;
+    }
 
     link.download = fileName;
     document.body.appendChild(link);
