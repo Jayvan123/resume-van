@@ -37,8 +37,10 @@ interface ResumeStore {
   updatePersonal: (field: keyof PersonalInfo, value: any) => void;
   setPersonal: (data: Partial<PersonalInfo>) => void;
   addTitle: (title: string) => void;
+  updateTitle: (index: number, title: string) => void;
   removeTitle: (index: number) => void;
   addLink: (link: string) => void;
+  updateLink: (index: number, link: string) => void;
   removeLink: (index: number) => void;
 
   // Experience actions
@@ -53,10 +55,12 @@ interface ResumeStore {
 
   // Skill actions
   addSkill: (skill: string) => void;
+  updateSkill: (index: number, skill: string) => void;
   removeSkill: (index: number) => void;
 
   // Certification actions
   addCertification: (cert: string) => void;
+  updateCertification: (index: number, cert: string) => void;
   removeCertification: (index: number) => void;
 
   // Draft actions
@@ -106,6 +110,17 @@ export const useResumeStore = create<ResumeStore>()(
             }
           }),
 
+        updateTitle: (index, title) =>
+          set((state) => {
+            const trimmed = title.trim();
+            if (trimmed) {
+              state.data.personal.titles[index] = trimmed;
+            } else {
+              state.data.personal.titles.splice(index, 1);
+            }
+            updateActiveDraft(state);
+          }),
+
         removeTitle: (index) =>
           set((state) => {
             state.data.personal.titles.splice(index, 1);
@@ -120,6 +135,19 @@ export const useResumeStore = create<ResumeStore>()(
             }
             if (trimmed && !state.data.personal.links.includes(trimmed)) {
               state.data.personal.links.push(trimmed);
+              updateActiveDraft(state);
+            }
+          }),
+
+        updateLink: (index, link) =>
+          set((state) => {
+            const trimmed = link.trim();
+            if (state.data.personal.links) {
+              if (trimmed) {
+                state.data.personal.links[index] = trimmed;
+              } else {
+                state.data.personal.links.splice(index, 1);
+              }
               updateActiveDraft(state);
             }
           }),
@@ -189,6 +217,17 @@ export const useResumeStore = create<ResumeStore>()(
             }
           }),
 
+        updateSkill: (index, skill) =>
+          set((state) => {
+            const trimmed = skill.trim();
+            if (trimmed) {
+              state.data.skills[index] = trimmed;
+            } else {
+              state.data.skills.splice(index, 1);
+            }
+            updateActiveDraft(state);
+          }),
+
         removeSkill: (index) =>
           set((state) => {
             state.data.skills.splice(index, 1);
@@ -202,6 +241,17 @@ export const useResumeStore = create<ResumeStore>()(
               state.data.certifications.push(trimmed);
               updateActiveDraft(state);
             }
+          }),
+
+        updateCertification: (index, cert) =>
+          set((state) => {
+            const trimmed = cert.trim();
+            if (trimmed) {
+              state.data.certifications[index] = trimmed;
+            } else {
+              state.data.certifications.splice(index, 1);
+            }
+            updateActiveDraft(state);
           }),
 
         removeCertification: (index) =>

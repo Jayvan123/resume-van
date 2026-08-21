@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download, RefreshCw, ChevronDown } from 'lucide-react';
+import { Download, RefreshCw, ChevronDown, FileText, Eye } from 'lucide-react';
 import { TABS } from '@/constants/tabs';
 import { TabId } from '@/types/resume.types';
 import { useResumeStore } from '@/lib/store/resume.slice';
@@ -108,44 +108,41 @@ const TopBar: React.FC<{
   onFontChange: (font: string) => void;
   activeDraftName?: string;
   isSampleData?: boolean;
-}> = ({ onLoadSample, onClear, hasData, selectedFont, onFontChange, activeDraftName, isSampleData }) => (
-  <div className="flex items-center justify-between px-6 py-6">
+}> = ({ onLoadSample, onClear, hasData, selectedFont, onFontChange, isSampleData }) => (
+  <div className="flex items-center justify-between px-4 py-4 md:px-6 md:py-6">
+    {/* Left: Logo + subtitle */}
     <div>
-      <div className="flex items-center gap-3.5">
-        <h1 className="text-5xl font-extrabold tracking-tight text-slate-950 leading-none">ResumeVan</h1>
-        {activeDraftName && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full shadow-sm animate-in fade-in slide-in-from-left-2 duration-200">
-            <span className="size-1.5 rounded-full bg-indigo-600 animate-pulse" />
-            Editing Draft: {activeDraftName}
-          </span>
-        )}
-      </div>
-      <p className="text-lg text-slate-600 mt-2.5">ATS-Optimized Resume Builder</p>
+      <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-950 leading-none">ResumeVan</h1>
+      <p className="hidden md:block text-lg text-slate-600 mt-2.5">ATS-Optimized Resume Builder</p>
     </div>
-    <div className="flex items-center gap-3">
+
+    {/* Right: Actions */}
+    <div className="flex items-center gap-2 md:gap-3">
       {/* Drafts Selector */}
       <DraftsManager />
 
-      <div className="h-6 w-px bg-slate-200" /> {/* Divider */}
+      <div className="hidden md:block h-6 w-px bg-slate-200" /> {/* Divider — desktop only */}
 
-      {/* Custom Font Selector */}
-      <FontSelector selectedFont={selectedFont} onFontChange={onFontChange} />
+      {/* Font Selector — desktop only */}
+      <div className="hidden md:flex">
+        <FontSelector selectedFont={selectedFont} onFontChange={onFontChange} />
+      </div>
 
-      <div className="h-6 w-px bg-slate-200" /> {/* Divider */}
+      <div className="hidden md:block h-6 w-px bg-slate-200" /> {/* Divider — desktop only */}
 
       {hasData ? (
         <button
           onClick={onClear}
-          className="text-sm font-medium text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 px-3.5 py-2 rounded-xl transition-all shadow-sm"
+          className="text-xs md:text-sm font-medium text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 px-2.5 md:px-3.5 py-1.5 md:py-2 rounded-xl transition-all shadow-sm"
         >
-          {isSampleData ? 'Clear Sample' : 'Clear Data'}
+          {isSampleData ? 'Clear' : 'Clear'}
         </button>
       ) : (
         <button
           onClick={onLoadSample}
-          className="text-sm font-medium text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 px-3.5 py-2 rounded-xl transition-all shadow-sm"
+          className="text-xs md:text-sm font-medium text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 px-2.5 md:px-3.5 py-1.5 md:py-2 rounded-xl transition-all shadow-sm"
         >
-          Load Sample
+          Sample
         </button>
       )}
     </div>
@@ -220,23 +217,34 @@ const LeftPanel: React.FC<{
   hasData: boolean;
   isDownloading: boolean;
   activeDraftName?: string;
-}> = ({ onDownload, hasData, isDownloading, activeDraftName }) => {
+  selectedFont?: string;
+  onFontChange?: (font: string) => void;
+}> = ({ onDownload, hasData, isDownloading, activeDraftName, selectedFont, onFontChange }) => {
   const { activeTab, setActiveTab } = useResumeStore();
 
   return (
     <div className="flex flex-col h-full">
       <TabNav activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="flex-1 overflow-y-auto p-6 bg-white">
+
+      {/* Mobile-only font selector row */}
+      {selectedFont && onFontChange && (
+        <div className="md:hidden flex items-center justify-between px-4 py-2 border-b border-slate-100 bg-slate-50/80">
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Font</span>
+          <FontSelector selectedFont={selectedFont} onFontChange={onFontChange} />
+        </div>
+      )}
+
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-white">
         {renderTabContent(activeTab)}
       </div>
-      <div className="flex flex-shrink-0 items-center justify-between gap-3 border-t border-slate-200 bg-white px-6 py-4">
-        <p className="text-xs text-slate-400">
+      <div className="flex flex-shrink-0 items-center justify-between gap-3 border-t border-slate-200 bg-white px-4 md:px-6 py-3 md:py-4">
+        <p className="hidden md:block text-xs text-slate-400">
           {activeDraftName ? `Auto-saving edits to "${activeDraftName}"` : 'Auto-saved to browser'}
         </p>
         <button
           onClick={onDownload}
           disabled={!hasData || isDownloading}
-          className="flex items-center gap-2 text-sm font-semibold text-white bg-slate-900 hover:bg-black disabled:bg-slate-300 disabled:cursor-not-allowed px-4 py-2 rounded-xl shadow-sm ring-1 ring-inset ring-white/10 transition-all"
+          className="w-full md:w-auto flex items-center justify-center gap-2 text-sm font-semibold text-white bg-slate-900 hover:bg-black disabled:bg-slate-300 disabled:cursor-not-allowed px-4 py-2.5 rounded-xl shadow-sm ring-1 ring-inset ring-white/10 transition-all"
         >
           {isDownloading ? (
             <>
@@ -398,6 +406,8 @@ export const ResumeBuilder: React.FC = () => {
   } = useResumeStore();
 
   const [isClearConfirmOpen, setIsClearConfirmOpen] = React.useState(false);
+  // Mobile-only toggle: 'editor' or 'preview'
+  const [mobilePanel, setMobilePanel] = React.useState<'editor' | 'preview'>('editor');
 
   const activeDraft = drafts.find((d) => d.id === activeDraftId);
   const activeDraftName = activeDraft?.name;
@@ -442,8 +452,57 @@ export const ResumeBuilder: React.FC = () => {
         isSampleData={isSampleData}
       />
 
+      {/* Mobile-only Editor / Preview toggle bar */}
+      <div className="md:hidden flex items-center gap-1 px-4 pb-3">
+        <button
+          onClick={() => setMobilePanel('editor')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            mobilePanel === 'editor'
+              ? 'bg-slate-900 text-white shadow-sm'
+              : 'bg-white text-slate-500 border border-slate-200 hover:text-slate-700'
+          }`}
+        >
+          <FileText size={14} />
+          Editor
+        </button>
+        <button
+          onClick={() => setMobilePanel('preview')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            mobilePanel === 'preview'
+              ? 'bg-slate-900 text-white shadow-sm'
+              : 'bg-white text-slate-500 border border-slate-200 hover:text-slate-700'
+          }`}
+        >
+          <Eye size={14} />
+          Preview
+        </button>
+      </div>
+
+      {/* ─── MOBILE LAYOUT ───────────────────────────────── */}
+      {/* Editor panel — mobile only */}
+      <div className={`md:hidden flex-1 flex flex-col mx-4 mb-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden ${
+        mobilePanel === 'editor' ? 'flex' : 'hidden'
+      }`}>
+        <LeftPanel
+          onDownload={handleDownload}
+          hasData={hasData}
+          isDownloading={isDownloading}
+          activeDraftName={activeDraftName}
+          selectedFont={selectedFont}
+          onFontChange={setFontStyle}
+        />
+      </div>
+
+      {/* Preview panel — mobile only */}
+      <div className={`md:hidden flex-1 overflow-y-auto bg-slate-50/50 px-4 pb-4 ${
+        mobilePanel === 'preview' ? 'block' : 'hidden'
+      }`}>
+        <ResumePreview />
+      </div>
+
+      {/* ─── DESKTOP LAYOUT ──────────────────────────────── */}
       {/* Equal-width split screen: editor (left) / live preview (right) */}
-      <div className="flex-1 flex items-stretch">
+      <div className="hidden md:flex flex-1 items-stretch">
         <div className="w-1/2 flex-shrink-0 py-4 pl-4 pr-2">
           <div className="h-full bg-white flex flex-col rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
             <LeftPanel

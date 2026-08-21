@@ -14,9 +14,12 @@ type PersonalFormData = z.infer<typeof personalSchema>;
 const inputClass = 'h-10 rounded-xl px-3';
 
 export const PersonalTab: React.FC = () => {
-  const { data, setPersonal, addTitle, removeTitle, addLink, removeLink } = useResumeStore();
+  const { data, setPersonal, addTitle, updateTitle, removeTitle, addLink, updateLink, removeLink } = useResumeStore();
   const [newTitle, setNewTitle] = React.useState('');
   const [newLink, setNewLink] = React.useState('');
+
+  const [editingTitleIdx, setEditingTitleIdx] = React.useState<number | null>(null);
+  const [editingLinkIdx, setEditingLinkIdx] = React.useState<number | null>(null);
 
   const {
     register,
@@ -33,17 +36,13 @@ export const PersonalTab: React.FC = () => {
     },
   });
 
-  const handleAddTitle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (newTitle.trim()) {
-      addTitle(newTitle.trim());
+  const handleAddOrSaveTitle = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    if (e) e.preventDefault();
+    if (editingTitleIdx !== null) {
+      updateTitle(editingTitleIdx, newTitle.trim());
+      setEditingTitleIdx(null);
       setNewTitle('');
-    }
-  };
-
-  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
+    } else {
       if (newTitle.trim()) {
         addTitle(newTitle.trim());
         setNewTitle('');
@@ -51,20 +50,50 @@ export const PersonalTab: React.FC = () => {
     }
   };
 
-  const handleAddLink = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (newLink.trim()) {
-      addLink(newLink.trim());
-      setNewLink('');
+  const handleCancelTitle = () => {
+    setEditingTitleIdx(null);
+    setNewTitle('');
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddOrSaveTitle();
+    } else if (e.key === 'Escape') {
+      if (editingTitleIdx !== null) {
+        e.preventDefault();
+        handleCancelTitle();
+      }
     }
+  };
+
+  const handleAddOrSaveLink = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    if (e) e.preventDefault();
+    if (editingLinkIdx !== null) {
+      updateLink(editingLinkIdx, newLink.trim());
+      setEditingLinkIdx(null);
+      setNewLink('');
+    } else {
+      if (newLink.trim()) {
+        addLink(newLink.trim());
+        setNewLink('');
+      }
+    }
+  };
+
+  const handleCancelLink = () => {
+    setEditingLinkIdx(null);
+    setNewLink('');
   };
 
   const handleLinkKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (newLink.trim()) {
-        addLink(newLink.trim());
-        setNewLink('');
+      handleAddOrSaveLink();
+    } else if (e.key === 'Escape') {
+      if (editingLinkIdx !== null) {
+        e.preventDefault();
+        handleCancelLink();
       }
     }
   };
@@ -110,34 +139,72 @@ export const PersonalTab: React.FC = () => {
               placeholder="e.g. Senior Product Manager"
               className="flex-1 h-10 rounded-xl px-3 text-sm font-medium"
             />
-            <button
-              type="button"
-              onClick={handleAddTitle}
-              className="flex items-center gap-1 rounded-xl bg-slate-900 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition-colors hover:bg-black"
-            >
-              <Plus size={15} />
-              Add
-            </button>
+            {editingTitleIdx !== null ? (
+              <div className="flex gap-1.5 flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={(e) => handleAddOrSaveTitle(e)}
+                  className="flex items-center gap-1 rounded-xl bg-slate-900 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition-colors hover:bg-black whitespace-nowrap"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelTitle}
+                  className="flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 whitespace-nowrap"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={(e) => handleAddOrSaveTitle(e)}
+                className="flex items-center gap-1 rounded-xl bg-slate-900 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition-colors hover:bg-black whitespace-nowrap animate-in fade-in duration-200"
+              >
+                <Plus size={15} />
+                Add
+              </button>
+            )}
           </div>
 
           {data.personal.titles && data.personal.titles.length > 0 && (
             <div className="flex flex-wrap gap-1.5 pt-1">
-              {data.personal.titles.map((title, index) => (
-                <Badge
-                  key={index}
-                  variant="secondary"
-                  className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-medium text-slate-700 hover:bg-slate-100"
-                >
-                  {title}
-                  <button
-                    type="button"
-                    onClick={() => removeTitle(index)}
-                    className="ml-0.5 text-slate-400 hover:text-red-500 transition-colors"
+              {data.personal.titles.map((title, index) => {
+                const isEditing = editingTitleIdx === index;
+                return (
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className={`flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors select-none cursor-pointer ${
+                      isEditing
+                        ? 'border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 ring-2 ring-indigo-600/10'
+                        : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                    }`}
+                    onClick={(e) => {
+                      if ((e.target as HTMLElement).closest('button')) return;
+                      setEditingTitleIdx(index);
+                      setNewTitle(title);
+                    }}
                   >
-                    <X size={10} />
-                  </button>
-                </Badge>
-              ))}
+                    <span>{title}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (isEditing) {
+                          handleCancelTitle();
+                        }
+                        removeTitle(index);
+                      }}
+                      className={`ml-0.5 transition-colors flex-shrink-0 ${
+                        isEditing ? 'text-indigo-400 hover:text-indigo-600' : 'text-slate-400 hover:text-red-500'
+                      }`}
+                    >
+                      <X size={10} />
+                    </button>
+                  </Badge>
+                );
+              })}
             </div>
           )}
         </div>
@@ -198,34 +265,72 @@ export const PersonalTab: React.FC = () => {
               placeholder="e.g. linkedin.com/in/username"
               className="flex-1 h-10 rounded-xl px-3 text-sm font-medium"
             />
-            <button
-              type="button"
-              onClick={handleAddLink}
-              className="flex items-center gap-1 rounded-xl bg-slate-900 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition-colors hover:bg-black"
-            >
-              <Plus size={15} />
-              Add
-            </button>
+            {editingLinkIdx !== null ? (
+              <div className="flex gap-1.5 flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={(e) => handleAddOrSaveLink(e)}
+                  className="flex items-center gap-1 rounded-xl bg-slate-900 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition-colors hover:bg-black whitespace-nowrap"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelLink}
+                  className="flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 whitespace-nowrap"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={(e) => handleAddOrSaveLink(e)}
+                className="flex items-center gap-1 rounded-xl bg-slate-900 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition-colors hover:bg-black whitespace-nowrap"
+              >
+                <Plus size={15} />
+                Add
+              </button>
+            )}
           </div>
 
           {data.personal.links && data.personal.links.length > 0 && (
             <div className="flex flex-wrap gap-1.5 pt-1">
-              {data.personal.links.map((link, index) => (
-                <Badge
-                  key={index}
-                  variant="secondary"
-                  className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-medium text-slate-700 hover:bg-slate-100"
-                >
-                  {link}
-                  <button
-                    type="button"
-                    onClick={() => removeLink(index)}
-                    className="ml-0.5 text-slate-400 hover:text-red-500 transition-colors"
+              {data.personal.links.map((link, index) => {
+                const isEditing = editingLinkIdx === index;
+                return (
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className={`flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors select-none cursor-pointer ${
+                      isEditing
+                        ? 'border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 ring-2 ring-indigo-600/10'
+                        : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                    }`}
+                    onClick={(e) => {
+                      if ((e.target as HTMLElement).closest('button')) return;
+                      setEditingLinkIdx(index);
+                      setNewLink(link);
+                    }}
                   >
-                    <X size={10} />
-                  </button>
-                </Badge>
-              ))}
+                    <span>{link}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (isEditing) {
+                          handleCancelLink();
+                        }
+                        removeLink(index);
+                      }}
+                      className={`ml-0.5 transition-colors flex-shrink-0 ${
+                        isEditing ? 'text-indigo-400 hover:text-indigo-600' : 'text-slate-400 hover:text-red-500'
+                      }`}
+                    >
+                      <X size={10} />
+                    </button>
+                  </Badge>
+                );
+              })}
             </div>
           )}
         </div>
