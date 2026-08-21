@@ -4,6 +4,7 @@ import { TABS } from '@/constants/tabs';
 import { TabId } from '@/types/resume.types';
 import { useResumeStore } from '@/lib/store/resume.slice';
 import { downloadPDF } from '@/lib/pdf/generate';
+import { sampleResume } from '@/constants/sampleData';
 import { PersonalTab } from './left-panel/tabs/PersonalTab';
 import { ExperienceTab } from './left-panel/tabs/ExperienceTab';
 import { EducationTab } from './left-panel/tabs/EducationTab';
@@ -105,10 +106,20 @@ const TopBar: React.FC<{
   hasData: boolean;
   selectedFont: string;
   onFontChange: (font: string) => void;
-}> = ({ onLoadSample, onClear, hasData, selectedFont, onFontChange }) => (
+  activeDraftName?: string;
+  isSampleData?: boolean;
+}> = ({ onLoadSample, onClear, hasData, selectedFont, onFontChange, activeDraftName, isSampleData }) => (
   <div className="flex items-center justify-between px-6 py-6">
     <div>
-      <h1 className="text-5xl font-extrabold tracking-tight text-slate-950 leading-none">ResumeVan</h1>
+      <div className="flex items-center gap-3.5">
+        <h1 className="text-5xl font-extrabold tracking-tight text-slate-950 leading-none">ResumeVan</h1>
+        {activeDraftName && (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full shadow-sm animate-in fade-in slide-in-from-left-2 duration-200">
+            <span className="size-1.5 rounded-full bg-indigo-600 animate-pulse" />
+            Editing Draft: {activeDraftName}
+          </span>
+        )}
+      </div>
       <p className="text-lg text-slate-600 mt-2.5">ATS-Optimized Resume Builder</p>
     </div>
     <div className="flex items-center gap-3">
@@ -127,7 +138,7 @@ const TopBar: React.FC<{
           onClick={onClear}
           className="text-sm font-medium text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 px-3.5 py-2 rounded-xl transition-all shadow-sm"
         >
-          Clear Data
+          {isSampleData ? 'Clear Sample' : 'Clear Data'}
         </button>
       ) : (
         <button
@@ -208,7 +219,8 @@ const LeftPanel: React.FC<{
   onDownload: () => void;
   hasData: boolean;
   isDownloading: boolean;
-}> = ({ onDownload, hasData, isDownloading }) => {
+  activeDraftName?: string;
+}> = ({ onDownload, hasData, isDownloading, activeDraftName }) => {
   const { activeTab, setActiveTab } = useResumeStore();
 
   return (
@@ -219,7 +231,7 @@ const LeftPanel: React.FC<{
       </div>
       <div className="flex flex-shrink-0 items-center justify-between gap-3 border-t border-slate-200 bg-white px-6 py-4">
         <p className="text-xs text-slate-400">
-          Auto-saved to browser
+          {activeDraftName ? `Auto-saving edits to "${activeDraftName}"` : 'Auto-saved to browser'}
         </p>
         <button
           onClick={onDownload}
@@ -385,7 +397,7 @@ export const ResumeBuilder: React.FC = () => {
     activeDraftId,
   } = useResumeStore();
 
-  const [activeModal, setActiveModal] = React.useState<'clear' | 'loadSample' | null>(null);
+  const [isClearConfirmOpen, setIsClearConfirmOpen] = React.useState(false);
 
   const activeDraft = drafts.find((d) => d.id === activeDraftId);
   const activeDraftName = activeDraft?.name;
@@ -395,20 +407,18 @@ export const ResumeBuilder: React.FC = () => {
     data.experience.length > 0 ||
     data.education.length > 0;
 
+  const isSampleData = JSON.stringify(data) === JSON.stringify(sampleResume);
+
   const handleClear = () => {
-    if (hasData) {
-      setActiveModal('clear');
+    if (hasData && !isSampleData) {
+      setIsClearConfirmOpen(true);
     } else {
       resetAll();
     }
   };
 
   const handleLoadSample = () => {
-    if (hasData) {
-      setActiveModal('loadSample');
-    } else {
-      loadSampleData();
-    }
+    loadSampleData();
   };
 
   const handleDownload = async () => {
@@ -428,6 +438,8 @@ export const ResumeBuilder: React.FC = () => {
         hasData={hasData}
         selectedFont={selectedFont}
         onFontChange={setFontStyle}
+        activeDraftName={activeDraftName}
+        isSampleData={isSampleData}
       />
 
       {/* Equal-width split screen: editor (left) / live preview (right) */}
@@ -438,6 +450,7 @@ export const ResumeBuilder: React.FC = () => {
               onDownload={handleDownload}
               hasData={hasData}
               isDownloading={isDownloading}
+              activeDraftName={activeDraftName}
             />
           </div>
         </div>
@@ -447,7 +460,7 @@ export const ResumeBuilder: React.FC = () => {
       </div>
 
       <ConfirmationModal
-        isOpen={activeModal === 'clear'}
+        isOpen={isClearConfirmOpen}
         title="Clear Resume Details?"
         message={
           activeDraftName
@@ -459,23 +472,9 @@ export const ResumeBuilder: React.FC = () => {
         variant="danger"
         onConfirm={() => {
           resetAll();
-          setActiveModal(null);
+          setIsClearConfirmOpen(false);
         }}
-        onCancel={() => setActiveModal(null)}
-      />
-
-      <ConfirmationModal
-        isOpen={activeModal === 'loadSample'}
-        title="Load Sample Resume?"
-        message="This will overwrite your current workspace changes with the sample data. Are you sure you want to proceed?"
-        confirmText="Yes, Overwrite"
-        cancelText="Cancel"
-        variant="warning"
-        onConfirm={() => {
-          loadSampleData();
-          setActiveModal(null);
-        }}
-        onCancel={() => setActiveModal(null)}
+        onCancel={() => setIsClearConfirmOpen(false)}
       />
     </div>
   );
