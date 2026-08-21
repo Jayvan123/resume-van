@@ -16,7 +16,7 @@ const updateActiveDraft = (state: any) => {
   if (state.activeDraftId) {
     const draft = state.drafts.find((d: any) => d.id === state.activeDraftId);
     if (draft) {
-      draft.data = state.data;
+      draft.data = JSON.parse(JSON.stringify(state.data));
       draft.selectedFont = state.selectedFont;
       draft.updatedAt = new Date().toISOString();
     }
@@ -257,7 +257,7 @@ export const useResumeStore = create<ResumeStore>()(
             const newDraft: ResumeDraft = {
               id: draftId,
               name: draftName,
-              data: state.data,
+              data: JSON.parse(JSON.stringify(state.data)),
               selectedFont: state.selectedFont,
               updatedAt: new Date().toISOString(),
             };
@@ -269,7 +269,7 @@ export const useResumeStore = create<ResumeStore>()(
           set((state) => {
             const draft = state.drafts.find((d) => d.id === id);
             if (draft) {
-              state.data = draft.data;
+              state.data = JSON.parse(JSON.stringify(draft.data));
               state.selectedFont = draft.selectedFont;
               state.activeDraftId = id;
             }
