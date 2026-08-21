@@ -41,3 +41,12 @@ export interface TabConfig {
   id: TabId;
   label: string;
 }
+
+export interface ResumeDraft {
+  id: string;
+  name: string;
+  data: ResumeData;
+  selectedFont: string;
+  updatedAt: string;
+}
+
