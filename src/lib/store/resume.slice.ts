@@ -212,10 +212,51 @@ export const useResumeStore = create<ResumeStore>()(
 
         saveDraft: (name) =>
           set((state) => {
+            if (state.drafts.length >= 5) return;
             const draftId = crypto.randomUUID();
+            let draftName = name.trim();
+            
+            if (!draftName) {
+              let baseName = '';
+              const activeDraft = state.drafts.find((d: any) => d.id === state.activeDraftId);
+              
+              if (activeDraft) {
+                baseName = `${activeDraft.name} (Copy)`;
+              } else if (state.data.personal.fullName && state.data.personal.fullName.trim()) {
+                baseName = `${state.data.personal.fullName.trim()} Resume`;
+              } else {
+                baseName = 'Draft';
+              }
+              
+              draftName = baseName;
+              if (state.drafts.some((d: any) => d.name.toLowerCase() === draftName.toLowerCase())) {
+                let idx = 2;
+                const template = baseName === 'Draft' ? 'Draft {}' : `${baseName} {}`;
+                let proposedName = template.replace('{}', String(idx));
+                while (state.drafts.some((d: any) => d.name.toLowerCase() === proposedName.toLowerCase())) {
+                  idx++;
+                  proposedName = template.replace('{}', String(idx));
+                }
+                draftName = proposedName;
+              } else if (baseName === 'Draft') {
+                draftName = 'Draft 1';
+              }
+            } else {
+              let baseName = draftName;
+              if (state.drafts.some((d: any) => d.name.toLowerCase() === baseName.toLowerCase())) {
+                let idx = 2;
+                let proposedName = `${baseName} ${idx}`;
+                while (state.drafts.some((d: any) => d.name.toLowerCase() === proposedName.toLowerCase())) {
+                  idx++;
+                  proposedName = `${baseName} ${idx}`;
+                }
+                draftName = proposedName;
+              }
+            }
+
             const newDraft: ResumeDraft = {
               id: draftId,
-              name: name.trim() || 'Untitled Draft',
+              name: draftName,
               data: state.data,
               selectedFont: state.selectedFont,
               updatedAt: new Date().toISOString(),

@@ -11,6 +11,7 @@ import { SkillsTab } from './left-panel/tabs/SkillsTab';
 import { CertificationsTab } from './left-panel/tabs/CertificationsTab';
 import { AiAssistTab } from './left-panel/tabs/AiAssistTab';
 import { DraftsManager } from './DraftsManager';
+import { ConfirmationModal } from './ui/ConfirmationModal';
 
 /**
  * ResumeBuilder
@@ -384,6 +385,8 @@ export const ResumeBuilder: React.FC = () => {
     activeDraftId,
   } = useResumeStore();
 
+  const [activeModal, setActiveModal] = React.useState<'clear' | 'loadSample' | null>(null);
+
   const activeDraft = drafts.find((d) => d.id === activeDraftId);
   const activeDraftName = activeDraft?.name;
 
@@ -391,6 +394,22 @@ export const ResumeBuilder: React.FC = () => {
     data.personal.fullName !== '' ||
     data.experience.length > 0 ||
     data.education.length > 0;
+
+  const handleClear = () => {
+    if (hasData) {
+      setActiveModal('clear');
+    } else {
+      resetAll();
+    }
+  };
+
+  const handleLoadSample = () => {
+    if (hasData) {
+      setActiveModal('loadSample');
+    } else {
+      loadSampleData();
+    }
+  };
 
   const handleDownload = async () => {
     setIsDownloading(true);
@@ -404,8 +423,8 @@ export const ResumeBuilder: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <TopBar
-        onLoadSample={loadSampleData}
-        onClear={resetAll}
+        onLoadSample={handleLoadSample}
+        onClear={handleClear}
         hasData={hasData}
         selectedFont={selectedFont}
         onFontChange={setFontStyle}
@@ -426,6 +445,38 @@ export const ResumeBuilder: React.FC = () => {
           <ResumePreview />
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={activeModal === 'clear'}
+        title="Clear Resume Details?"
+        message={
+          activeDraftName
+            ? `Are you sure you want to clear your current progress? This will unlink your active draft "${activeDraftName}" from the workspace. The saved draft itself will remain safe.`
+            : "Are you sure you want to clear your current progress? All entered details will be lost."
+        }
+        confirmText="Yes, Clear Data"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={() => {
+          resetAll();
+          setActiveModal(null);
+        }}
+        onCancel={() => setActiveModal(null)}
+      />
+
+      <ConfirmationModal
+        isOpen={activeModal === 'loadSample'}
+        title="Load Sample Resume?"
+        message="This will overwrite your current workspace changes with the sample data. Are you sure you want to proceed?"
+        confirmText="Yes, Overwrite"
+        cancelText="Cancel"
+        variant="warning"
+        onConfirm={() => {
+          loadSampleData();
+          setActiveModal(null);
+        }}
+        onCancel={() => setActiveModal(null)}
+      />
     </div>
   );
 };

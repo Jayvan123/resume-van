@@ -1,6 +1,7 @@
 import React from 'react';
-import { Folder, Trash2, Edit3, X, ChevronDown, Check, Save } from 'lucide-react';
+import { Folder, Trash2, Edit3, X, ChevronDown, Check, Save, AlertTriangle, Plus } from 'lucide-react';
 import { useResumeStore } from '@/lib/store/resume.slice';
+import { ConfirmationModal } from './ui/ConfirmationModal';
 
 const formatRelativeTime = (isoString: string): string => {
   try {
@@ -24,6 +25,7 @@ const formatRelativeTime = (isoString: string): string => {
 
 export const DraftsManager: React.FC = () => {
   const {
+    data,
     drafts,
     activeDraftId,
     saveDraft,
@@ -38,6 +40,7 @@ export const DraftsManager: React.FC = () => {
   const [editingDraftId, setEditingDraftId] = React.useState<string | null>(null);
   const [editingDraftName, setEditingDraftName] = React.useState('');
   const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null);
+  const [confirmLoadId, setConfirmLoadId] = React.useState<string | null>(null);
 
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
@@ -55,11 +58,37 @@ export const DraftsManager: React.FC = () => {
 
   const activeDraft = drafts.find((d) => d.id === activeDraftId);
 
+  const hasData =
+    data.personal.fullName !== '' ||
+    data.experience.length > 0 ||
+    data.education.length > 0;
+
+  let defaultDraftName = '';
+  const baseName = activeDraft
+    ? `${activeDraft.name} (Copy)`
+    : (data.personal.fullName && data.personal.fullName.trim())
+      ? `${data.personal.fullName.trim()} Resume`
+      : 'Draft';
+
+  defaultDraftName = baseName;
+  if (drafts.some((d) => d.name.toLowerCase() === defaultDraftName.toLowerCase())) {
+    let idx = 2;
+    const template = baseName === 'Draft' ? 'Draft {}' : `${baseName} {}`;
+    let proposed = template.replace('{}', String(idx));
+    while (drafts.some((d) => d.name.toLowerCase() === proposed.toLowerCase())) {
+      idx++;
+      proposed = template.replace('{}', String(idx));
+    }
+    defaultDraftName = proposed;
+  } else if (baseName === 'Draft') {
+    defaultDraftName = 'Draft 1';
+  }
+
   const handleSaveNew = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newDraftName.trim()) return;
     saveDraft(newDraftName.trim());
     setNewDraftName('');
+    setIsOpen(false); // Close dropdown on save to provide a smooth, focused transition
   };
 
   const handleStartRename = (id: string, currentName: string, e: React.MouseEvent) => {
@@ -87,14 +116,30 @@ export const DraftsManager: React.FC = () => {
     }
   };
 
+  const handleQuickSave = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (drafts.length >= 5) return;
+    saveDraft('');
+  };
+
+  const handleLoadClick = (id: string) => {
+    if (!activeDraftId && hasData) {
+      setConfirmLoadId(id);
+    } else {
+      loadDraft(id);
+      setIsOpen(false);
+    }
+  };
+
   return (
     <div ref={dropdownRef} className="relative flex items-center gap-2">
       <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Saved Drafts:</span>
-      <div className="relative">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className={`flex items-center justify-between gap-2 min-w-[180px] max-w-[260px] text-sm font-medium border rounded-xl px-3.5 py-2 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-slate-900/10 active:scale-[0.98] ${
-            activeDraft
+      <div className="flex items-center gap-1.5">
+        <div className="relative">
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className={`flex items-center justify-between gap-2 min-w-[180px] max-w-[260px] text-sm font-medium border rounded-xl px-3.5 py-2 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-slate-900/10 active:scale-[0.98] ${
+              activeDraft
               ? 'border-indigo-200 bg-indigo-50/50 text-indigo-900 hover:border-indigo-300'
               : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
           }`}
@@ -142,24 +187,30 @@ export const DraftsManager: React.FC = () => {
             </div>
 
             {/* Quick Save form */}
-            <form onSubmit={handleSaveNew} className="p-3.5 border-b border-slate-100 flex gap-2">
-              <input
-                type="text"
-                value={newDraftName}
-                onChange={(e) => setNewDraftName(e.target.value)}
-                placeholder={activeDraft ? "Save current as new draft..." : "Name your current resume..."}
-                className="flex-1 text-xs border border-slate-200 hover:border-slate-300 focus:border-slate-400 focus:ring-1 focus:ring-slate-400 rounded-lg px-2.5 py-1.5 outline-none transition-all"
-              />
-              <button
-                type="submit"
-                disabled={!newDraftName.trim()}
-                title="Save draft"
-                className="bg-slate-900 hover:bg-black text-white disabled:bg-slate-200 disabled:cursor-not-allowed px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all"
-              >
-                <Save size={12} />
-                Save
-              </button>
-            </form>
+            {drafts.length >= 5 ? (
+              <div className="p-3 bg-amber-50 border-b border-amber-100 text-[11px] text-amber-850 font-semibold flex items-center justify-center gap-1.5">
+                <AlertTriangle size={12} className="text-amber-600 flex-shrink-0" />
+                <span>Draft limit reached (Max 5). Delete one to save.</span>
+              </div>
+            ) : (
+              <form onSubmit={handleSaveNew} className="p-3.5 border-b border-slate-100 flex gap-2">
+                <input
+                  type="text"
+                  value={newDraftName}
+                  onChange={(e) => setNewDraftName(e.target.value)}
+                  placeholder={`Draft name (default: ${defaultDraftName})`}
+                  className="flex-1 text-xs border border-slate-200 hover:border-slate-300 focus:border-slate-400 focus:ring-1 focus:ring-slate-400 rounded-lg px-2.5 py-1.5 outline-none transition-all"
+                />
+                <button
+                  type="submit"
+                  title="Save draft"
+                  className="bg-slate-900 hover:bg-black text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all animate-in fade-in zoom-in duration-100"
+                >
+                  <Save size={12} />
+                  Save
+                </button>
+              </form>
+            )}
 
             {/* Draft list */}
             <div className="flex-1 max-h-[220px] overflow-y-auto py-1">
@@ -185,8 +236,7 @@ export const DraftsManager: React.FC = () => {
                           key={draft.id}
                           onClick={() => {
                             if (!isEditing && !isConfirmingDelete) {
-                              loadDraft(draft.id);
-                              setIsOpen(false);
+                              handleLoadClick(draft.id);
                             }
                           }}
                           className={`group/item flex items-center justify-between gap-3 px-3.5 py-2.5 text-left text-xs transition-colors cursor-pointer ${
@@ -279,6 +329,35 @@ export const DraftsManager: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Quick plus icon button */}
+      <button
+        onClick={handleQuickSave}
+        disabled={drafts.length >= 5}
+        title={drafts.length >= 5 ? "Draft limit reached (Max 5)" : `Quick save as ${defaultDraftName}`}
+        className="flex items-center justify-center size-9 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 disabled:opacity-30 disabled:hover:bg-white disabled:cursor-not-allowed rounded-xl shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-slate-900/10 active:scale-[0.95] flex-shrink-0"
+      >
+        <Plus size={15} />
+      </button>
+    </div>
+
+      {/* Confirmation modal for overwrite when loading draft */}
+      <ConfirmationModal
+        isOpen={confirmLoadId !== null}
+        title="Overwrite Unsaved Changes?"
+        message="You have unsaved changes in your workspace. Loading this draft will replace all your current edits. Are you sure you want to proceed?"
+        confirmText="Yes, Load Draft"
+        cancelText="Cancel"
+        variant="warning"
+        onConfirm={() => {
+          if (confirmLoadId) {
+            loadDraft(confirmLoadId);
+            setConfirmLoadId(null);
+            setIsOpen(false);
+          }
+        }}
+        onCancel={() => setConfirmLoadId(null)}
+      />
     </div>
   );
 };
