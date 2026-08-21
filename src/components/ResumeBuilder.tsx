@@ -10,6 +10,7 @@ import { EducationTab } from './left-panel/tabs/EducationTab';
 import { SkillsTab } from './left-panel/tabs/SkillsTab';
 import { CertificationsTab } from './left-panel/tabs/CertificationsTab';
 import { AiAssistTab } from './left-panel/tabs/AiAssistTab';
+import { DraftsManager } from './DraftsManager';
 
 /**
  * ResumeBuilder
@@ -110,6 +111,11 @@ const TopBar: React.FC<{
       <p className="text-lg text-slate-600 mt-2.5">ATS-Optimized Resume Builder</p>
     </div>
     <div className="flex items-center gap-3">
+      {/* Drafts Selector */}
+      <DraftsManager />
+
+      <div className="h-6 w-px bg-slate-200" /> {/* Divider */}
+
       {/* Custom Font Selector */}
       <FontSelector selectedFont={selectedFont} onFontChange={onFontChange} />
 
@@ -366,7 +372,20 @@ const ResumePreview: React.FC = () => {
 };
 
 export const ResumeBuilder: React.FC = () => {
-  const { data, loadSampleData, resetAll, selectedFont, setFontStyle, isDownloading, setIsDownloading } = useResumeStore();
+  const {
+    data,
+    loadSampleData,
+    resetAll,
+    selectedFont,
+    setFontStyle,
+    isDownloading,
+    setIsDownloading,
+    drafts,
+    activeDraftId,
+  } = useResumeStore();
+
+  const activeDraft = drafts.find((d) => d.id === activeDraftId);
+  const activeDraftName = activeDraft?.name;
 
   const hasData =
     data.personal.fullName !== '' ||
@@ -376,7 +395,7 @@ export const ResumeBuilder: React.FC = () => {
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
-      await downloadPDF(data, selectedFont);
+      await downloadPDF(data, selectedFont, activeDraftName);
     } finally {
       setIsDownloading(false);
     }
