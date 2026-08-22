@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download, RefreshCw, ChevronDown, FileText, Eye } from 'lucide-react';
+import { Download, RefreshCw, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { TABS } from '@/constants/tabs';
 import { TabId } from '@/types/resume.types';
 import { useResumeStore } from '@/lib/store/resume.slice';
@@ -41,7 +41,8 @@ const FONT_OPTIONS = ['Poppins', 'Calibri', 'Arial', 'Helvetica', 'Times New Rom
 const FontSelector: React.FC<{
   selectedFont: string;
   onFontChange: (font: string) => void;
-}> = ({ selectedFont, onFontChange }) => {
+  hideLabel?: boolean;
+}> = ({ selectedFont, onFontChange, hideLabel }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
@@ -57,7 +58,9 @@ const FontSelector: React.FC<{
 
   return (
     <div ref={dropdownRef} className="relative flex items-center gap-2">
-      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Font:</span>
+      {!hideLabel && (
+        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Font:</span>
+      )}
       <div className="relative">
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -109,38 +112,38 @@ const TopBar: React.FC<{
   activeDraftName?: string;
   isSampleData?: boolean;
 }> = ({ onLoadSample, onClear, hasData, selectedFont, onFontChange, isSampleData }) => (
-  <div className="flex items-center justify-between px-4 py-4 md:px-6 md:py-6 mx-auto w-full max-w-[1400px]">
-    {/* Left: Logo + subtitle */}
-    <div>
-      <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-950 leading-none">ResumeVan</h1>
+  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between px-4 pt-4 pb-3 md:px-6 md:py-6 mx-auto w-full max-w-[1400px]">
+    {/* Logo + subtitle */}
+    <div className="flex-shrink-0">
+      <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold tracking-tight text-slate-950 leading-none">ResumeVan</h1>
       <p className="hidden md:block text-lg text-slate-600 mt-2.5">ATS-Optimized Resume Builder</p>
     </div>
 
-    {/* Right: Actions */}
-    <div className="flex items-center gap-2 md:gap-3">
+    {/* Actions row — own line on mobile so it always has full width to breathe */}
+    <div className="flex items-center gap-2 md:gap-3 min-w-0">
       {/* Drafts Selector */}
       <DraftsManager />
 
-      <div className="hidden md:block h-6 w-px bg-slate-200" /> {/* Divider — desktop only */}
+      <div className="hidden md:block h-6 w-px bg-slate-200 flex-shrink-0" /> {/* Divider — desktop only */}
 
       {/* Font Selector — desktop only */}
       <div className="hidden md:flex">
         <FontSelector selectedFont={selectedFont} onFontChange={onFontChange} />
       </div>
 
-      <div className="hidden md:block h-6 w-px bg-slate-200" /> {/* Divider — desktop only */}
+      <div className="hidden md:block h-6 w-px bg-slate-200 flex-shrink-0" /> {/* Divider — desktop only */}
 
       {hasData ? (
         <button
           onClick={onClear}
-          className="text-xs md:text-sm font-medium text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 px-2.5 md:px-3.5 py-1.5 md:py-2 rounded-xl transition-all shadow-sm"
+          className="flex-shrink-0 text-xs md:text-sm font-medium text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 px-3 md:px-3.5 h-10 md:h-auto md:py-2 rounded-xl transition-all shadow-sm active:scale-[0.98]"
         >
           {isSampleData ? 'Clear' : 'Clear'}
         </button>
       ) : (
         <button
           onClick={onLoadSample}
-          className="text-xs md:text-sm font-medium text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 px-2.5 md:px-3.5 py-1.5 md:py-2 rounded-xl transition-all shadow-sm"
+          className="flex-shrink-0 text-xs md:text-sm font-medium text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 px-3 md:px-3.5 h-10 md:h-auto md:py-2 rounded-xl transition-all shadow-sm active:scale-[0.98]"
         >
           Sample
         </button>
@@ -228,9 +231,9 @@ const LeftPanel: React.FC<{
 
       {/* Mobile-only font selector row */}
       {selectedFont && onFontChange && (
-        <div className="md:hidden flex items-center justify-between px-4 py-2 border-b border-slate-100 bg-slate-50/80">
+        <div className="md:hidden flex items-center justify-between px-4 py-2.5 border-b border-slate-100 bg-slate-50/80">
           <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Font</span>
-          <FontSelector selectedFont={selectedFont} onFontChange={onFontChange} />
+          <FontSelector selectedFont={selectedFont} onFontChange={onFontChange} hideLabel />
         </div>
       )}
 
@@ -273,32 +276,32 @@ const FONT_MAPPING: Record<string, string> = {
   'Cambria': "Cambria, Georgia, serif",
 };
 
-const ResumePreview: React.FC = () => {
-  const { data, selectedFont } = useResumeStore();
-  const fontStyle = FONT_MAPPING[selectedFont] || "Arial, sans-serif";
+const PAPER_WIDTH = 794;
+
+/**
+ * The paper markup itself — always laid out at a fixed 794px so text wraps
+ * identically to the PDF export. Extracted so both the inline preview and
+ * the full-screen zoom modal render the exact same content.
+ */
+const ResumePaper: React.FC<{ fontStyle: string }> = ({ fontStyle }) => {
+  const { data } = useResumeStore();
 
   return (
-    <div className="py-6 px-4 overflow-x-auto">
-      {/* Fixed (not max-) width: this box must always lay out text at exactly
-          794px — the same width the PDF export renders at — so line-wrapping
-          in the preview is never narrower/wider than what gets downloaded.
-          On viewports narrower than 794px this scrolls horizontally instead
-          of shrinking, trading a scrollbar for guaranteed 1:1 fidelity. */}
-      <div
-        id="resume-preview-paper"
-        className="mx-auto w-[794px] min-h-[1123px] bg-white border border-slate-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.06)] px-10 py-10 text-slate-900"
-        style={{ fontFamily: fontStyle }}
-      >
-        <header className="pb-3 mb-4 text-center">
-          <h1 className="text-[24px] font-extrabold tracking-tight leading-none text-slate-900 mb-1.5">
+    <div
+      id="resume-preview-paper"
+      className="w-[794px] min-h-[1123px] bg-white px-10 py-10 text-slate-900"
+      style={{ fontFamily: fontStyle }}
+    >
+      <header className="pb-3 mb-4 text-center">
+          <h1 className="text-[28px] font-extrabold tracking-tight leading-none text-slate-900 mb-1.5">
             {data.personal.fullName || 'YOUR NAME'}
           </h1>
           {data.personal.titles && data.personal.titles.length > 0 && (
-            <div className="text-[13px] font-bold text-slate-800 uppercase tracking-[0.08em] mb-2">
+            <div className="text-[14px] font-bold text-slate-800 uppercase tracking-[0.08em] mb-2">
               {data.personal.titles.join(' | ')}
             </div>
           )}
-          <div className="flex flex-wrap justify-center gap-x-3 gap-y-0.5 text-[12px] text-slate-600">
+          <div className="flex flex-wrap justify-center gap-x-3 gap-y-0.5 text-[13px] text-slate-600">
             {[
               data.personal.location,
               data.personal.email,
@@ -317,10 +320,10 @@ const ResumePreview: React.FC = () => {
 
         {data.personal.summary && (
           <section className="mb-4">
-            <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
+            <h2 className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
               Professional Summary
             </h2>
-            <p className="text-[13px] leading-relaxed text-slate-700">
+            <p className="text-[14px] leading-relaxed text-slate-700">
               {data.personal.summary}
             </p>
           </section>
@@ -328,7 +331,7 @@ const ResumePreview: React.FC = () => {
 
         {data.experience.length > 0 && (
           <section className="mb-4">
-            <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3">
+            <h2 className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3">
               Work Experience
             </h2>
             <div className="space-y-4">
@@ -336,17 +339,17 @@ const ResumePreview: React.FC = () => {
                 <div key={exp.id}>
                   <div className="flex items-baseline justify-between gap-4 mb-0.5">
                     <div>
-                      <span className="text-[13.5px] font-bold text-slate-900">
+                      <span className="text-[14.5px] font-bold text-slate-900">
                         {exp.role}
                       </span>
-                      <span className="text-[13px] text-slate-600 ml-1.5">— {exp.company}</span>
+                      <span className="text-[14px] text-slate-600 ml-1.5">— {exp.company}</span>
                     </div>
-                    <span className="text-[12px] text-slate-500 whitespace-nowrap flex-shrink-0">
+                    <span className="text-[13px] text-slate-500 whitespace-nowrap flex-shrink-0">
                       {exp.dates}
                     </span>
                   </div>
                   {exp.description && (
-                    <div className="text-[12.5px] leading-relaxed text-slate-700 whitespace-pre-line pl-3 border-l border-slate-200 mt-1">
+                    <div className="text-[13.5px] leading-relaxed text-slate-700 whitespace-pre-line pl-3 border-l border-slate-200 mt-1">
                       {exp.description}
                     </div>
                   )}
@@ -358,19 +361,19 @@ const ResumePreview: React.FC = () => {
 
         {data.education.length > 0 && (
           <section className="mb-4">
-            <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3">
+            <h2 className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3">
               Education
             </h2>
             <div className="space-y-2.5">
               {data.education.map((edu) => (
                 <div key={edu.id} className="flex items-baseline justify-between gap-4">
                   <div>
-                    <span className="text-[13.5px] font-bold text-slate-900">
+                    <span className="text-[14.5px] font-bold text-slate-900">
                       {edu.school}
                     </span>
-                    <p className="text-[12.5px] text-slate-600 mt-0.5">{edu.degree}</p>
+                    <p className="text-[13.5px] text-slate-600 mt-0.5">{edu.degree}</p>
                   </div>
-                  <span className="text-[12px] text-slate-500 whitespace-nowrap flex-shrink-0">
+                  <span className="text-[13px] text-slate-500 whitespace-nowrap flex-shrink-0">
                     {edu.dates}
                   </span>
                 </div>
@@ -381,10 +384,10 @@ const ResumePreview: React.FC = () => {
 
         {data.skills.length > 0 && (
           <section className="mb-4">
-            <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
+            <h2 className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
               Skills
             </h2>
-            <p className="text-[13px] leading-relaxed text-slate-700">
+            <p className="text-[14px] leading-relaxed text-slate-700">
               {data.skills.join(' · ')}
             </p>
           </section>
@@ -392,16 +395,127 @@ const ResumePreview: React.FC = () => {
 
         {data.certifications.length > 0 && (
           <section>
-            <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
+            <h2 className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
               Certifications
             </h2>
-            <ul className="list-disc list-inside text-[13px] text-slate-700 space-y-1">
+            <ul className="list-disc list-inside text-[14px] text-slate-700 space-y-1">
               {data.certifications.map((cert, index) => (
                 <li key={index}>{cert}</li>
               ))}
             </ul>
           </section>
         )}
+    </div>
+  );
+};
+
+/**
+ * Live preview: scales the fixed-width paper down to fit whatever container
+ * it's placed in (ResizeObserver-driven), so phones get a proportionally
+ * shrunk thumbnail instead of a horizontal scrollbar. Tapping it opens a
+ * full-screen zoomed viewer for actually reading the content on small
+ * screens; on desktop the container is already wide enough that scale
+ * settles at ~1 and the tap affordance is hidden.
+ */
+const ResumePreview: React.FC = () => {
+  const { selectedFont } = useResumeStore();
+  const fontStyle = FONT_MAPPING[selectedFont] || "Arial, sans-serif";
+
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const paperRef = React.useRef<HTMLDivElement>(null);
+  const [scale, setScale] = React.useState(1);
+  const [paperHeight, setPaperHeight] = React.useState(1123);
+  const [isZoomOpen, setIsZoomOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const CONTAINER_PADDING = 32; // px-4 on each side of the scaled box
+    const update = () => {
+      const available = container.clientWidth - CONTAINER_PADDING;
+      setScale(available < PAPER_WIDTH ? Math.max(available / PAPER_WIDTH, 0.32) : 1);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, []);
+
+  React.useEffect(() => {
+    if (paperRef.current) setPaperHeight(paperRef.current.scrollHeight);
+  });
+
+  return (
+    <div ref={containerRef} className="py-6 px-4">
+      <button
+        type="button"
+        onClick={() => scale < 1 && setIsZoomOpen(true)}
+        className={`block mx-auto ${scale < 1 ? 'cursor-zoom-in' : 'cursor-default'}`}
+        style={{ width: PAPER_WIDTH * scale, height: paperHeight * scale }}
+        aria-label={scale < 1 ? 'Tap to enlarge resume preview' : 'Resume preview'}
+      >
+        <div
+          ref={paperRef}
+          className="border border-slate-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.06)] origin-top-left"
+          style={{ width: PAPER_WIDTH, transform: `scale(${scale})` }}
+        >
+          <ResumePaper fontStyle={fontStyle} />
+        </div>
+      </button>
+
+      {scale < 1 && (
+        <p className="text-center text-xs text-slate-400 mt-2 md:hidden">Tap preview to zoom in</p>
+      )}
+
+      {isZoomOpen && (
+        <ZoomModal fontStyle={fontStyle} onClose={() => setIsZoomOpen(false)} />
+      )}
+    </div>
+  );
+};
+
+/** Full-screen scrollable viewer, scaled to fit the device width more generously than the inline thumbnail. */
+const ZoomModal: React.FC<{ fontStyle: string; onClose: () => void }> = ({ fontStyle, onClose }) => {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [scale, setScale] = React.useState(1);
+
+  React.useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    const container = containerRef.current;
+    const update = () => {
+      if (!container) return;
+      const available = container.clientWidth - 24;
+      setScale(Math.min(1, available / PAPER_WIDTH));
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('resize', update);
+    };
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-sm flex flex-col animate-in fade-in duration-150">
+      <div className="flex items-center justify-between px-4 py-3 flex-shrink-0">
+        <span className="text-sm font-semibold text-white/90">Resume Preview</span>
+        <button
+          onClick={onClose}
+          className="flex items-center justify-center size-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors active:scale-95"
+          aria-label="Close preview"
+        >
+          <X size={18} />
+        </button>
+      </div>
+      <div ref={containerRef} className="flex-1 overflow-y-auto px-3 pb-6">
+        <div className="mx-auto" style={{ width: PAPER_WIDTH * scale }}>
+          <div
+            className="border border-slate-200/80 shadow-2xl origin-top-left bg-white"
+            style={{ width: PAPER_WIDTH, transform: `scale(${scale})` }}
+          >
+            <ResumePaper fontStyle={fontStyle} />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -421,8 +535,12 @@ export const ResumeBuilder: React.FC = () => {
   } = useResumeStore();
 
   const [isClearConfirmOpen, setIsClearConfirmOpen] = React.useState(false);
-  // Mobile-only toggle: 'editor' or 'preview'
-  const [mobilePanel, setMobilePanel] = React.useState<'editor' | 'preview'>('editor');
+  // Mobile-only scroll anchors: editor and preview are stacked in normal page
+  // flow (not tab-toggled), these back the "Preview ↓" / "Editor ↑" jump links.
+  const editorAnchorRef = React.useRef<HTMLDivElement>(null);
+  const previewAnchorRef = React.useRef<HTMLDivElement>(null);
+  const scrollToPreview = () => previewAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const scrollToEditor = () => editorAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   const activeDraft = drafts.find((d) => d.id === activeDraftId);
   const activeDraftName = activeDraft?.name;
@@ -467,52 +585,48 @@ export const ResumeBuilder: React.FC = () => {
         isSampleData={isSampleData}
       />
 
-      {/* Mobile-only Editor / Preview toggle bar */}
-      <div className="md:hidden flex items-center gap-1 px-4 pb-3">
-        <button
-          onClick={() => setMobilePanel('editor')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-            mobilePanel === 'editor'
-              ? 'bg-slate-900 text-white shadow-sm'
-              : 'bg-white text-slate-500 border border-slate-200 hover:text-slate-700'
-          }`}
-        >
-          <FileText size={14} />
-          Editor
-        </button>
-        <button
-          onClick={() => setMobilePanel('preview')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-            mobilePanel === 'preview'
-              ? 'bg-slate-900 text-white shadow-sm'
-              : 'bg-white text-slate-500 border border-slate-200 hover:text-slate-700'
-          }`}
-        >
-          <Eye size={14} />
-          Preview
-        </button>
-      </div>
-
       {/* ─── MOBILE LAYOUT ───────────────────────────────── */}
-      {/* Editor panel — mobile only */}
-      <div className={`md:hidden flex-1 flex flex-col mx-4 mb-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden ${
-        mobilePanel === 'editor' ? 'flex' : 'hidden'
-      }`}>
-        <LeftPanel
-          onDownload={handleDownload}
-          hasData={hasData}
-          isDownloading={isDownloading}
-          activeDraftName={activeDraftName}
-          selectedFont={selectedFont}
-          onFontChange={setFontStyle}
-        />
-      </div>
+      {/* Stacked, single-page-scroll: editor card first, live preview card
+          below it — no hidden panels. Each section gets a small sticky-feel
+          header with a jump link to the other, since the editor card caps
+          its own height (68vh) with internal scrolling for comfortable
+          form-filling, while the page itself keeps scrolling down to the
+          preview. */}
+      <div className="md:hidden flex flex-col">
+        <div ref={editorAnchorRef} className="flex items-center justify-between px-4 pb-2 pt-1">
+          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">1. Fill in your details</h2>
+          <button
+            onClick={scrollToPreview}
+            className="flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900 py-1.5 -mr-1.5 px-1.5"
+          >
+            Preview
+            <ChevronDown size={14} />
+          </button>
+        </div>
+        <div className="h-[68vh] flex flex-col mx-4 mb-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <LeftPanel
+            onDownload={handleDownload}
+            hasData={hasData}
+            isDownloading={isDownloading}
+            activeDraftName={activeDraftName}
+            selectedFont={selectedFont}
+            onFontChange={setFontStyle}
+          />
+        </div>
 
-      {/* Preview panel — mobile only */}
-      <div className={`md:hidden flex-1 overflow-y-auto bg-slate-50/50 px-4 pb-4 ${
-        mobilePanel === 'preview' ? 'block' : 'hidden'
-      }`}>
-        <ResumePreview />
+        <div ref={previewAnchorRef} className="flex items-center justify-between px-4 pb-2 pt-1">
+          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">2. Live preview</h2>
+          <button
+            onClick={scrollToEditor}
+            className="flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900 py-1.5 -mr-1.5 px-1.5"
+          >
+            <ChevronUp size={14} />
+            Editor
+          </button>
+        </div>
+        <div className="mx-4 mb-6 bg-slate-50/50 rounded-2xl border border-slate-200/80 overflow-hidden">
+          <ResumePreview />
+        </div>
       </div>
 
       {/* ─── DESKTOP LAYOUT ──────────────────────────────── */}

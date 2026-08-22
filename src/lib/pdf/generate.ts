@@ -44,11 +44,11 @@ const buildResumeHtml = (data: ResumeData, selectedFont: string): string => {
 
   const titlesHtml =
     data.personal.titles && data.personal.titles.length > 0
-      ? `<div style="font-size:13px;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">${esc(data.personal.titles.join(' | '))}</div>`
+      ? `<div style="font-size:14px;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">${esc(data.personal.titles.join(' | '))}</div>`
       : '';
 
   const sectionHeader = (title: string) =>
-    `<h2 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#1e293b;border-bottom:1px solid #cbd5e1;padding-bottom:4px;margin-bottom:8px;margin-top:0;">${title}</h2>`;
+    `<h2 style="font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#1e293b;border-bottom:1px solid #cbd5e1;padding-bottom:4px;margin-bottom:8px;margin-top:0;">${title}</h2>`;
 
   const experienceHtml = data.experience
     .map(
@@ -56,12 +56,12 @@ const buildResumeHtml = (data: ResumeData, selectedFont: string): string => {
       <div style="margin-bottom:14px;">
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:2px;">
           <div>
-            <span style="font-size:13.5px;font-weight:700;color:#0f172a;">${esc(exp.role)}</span>
-            <span style="font-size:13px;color:#475569;margin-left:6px;">&#8212; ${esc(exp.company)}</span>
+            <span style="font-size:14.5px;font-weight:700;color:#0f172a;">${esc(exp.role)}</span>
+            <span style="font-size:14px;color:#475569;margin-left:6px;">&#8212; ${esc(exp.company)}</span>
           </div>
-          <span style="font-size:12px;color:#64748b;white-space:nowrap;flex-shrink:0;">${esc(exp.dates)}</span>
+          <span style="font-size:13px;color:#64748b;white-space:nowrap;flex-shrink:0;">${esc(exp.dates)}</span>
         </div>
-        ${exp.description ? `<div style="font-size:12.5px;line-height:1.625;color:#334155;white-space:pre-line;padding-left:12px;border-left:1px solid #e2e8f0;margin-top:4px;">${esc(exp.description)}</div>` : ''}
+        ${exp.description ? `<div style="font-size:13.5px;line-height:1.625;color:#334155;white-space:pre-line;padding-left:12px;border-left:1px solid #e2e8f0;margin-top:4px;">${esc(exp.description)}</div>` : ''}
       </div>`,
     )
     .join('');
@@ -71,10 +71,10 @@ const buildResumeHtml = (data: ResumeData, selectedFont: string): string => {
       (edu) => `
       <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:10px;">
         <div>
-          <span style="font-size:13.5px;font-weight:700;color:#0f172a;">${esc(edu.school)}</span>
-          <p style="font-size:12.5px;color:#475569;margin:2px 0 0;">${esc(edu.degree)}</p>
+          <span style="font-size:14.5px;font-weight:700;color:#0f172a;">${esc(edu.school)}</span>
+          <p style="font-size:13.5px;color:#475569;margin:2px 0 0;">${esc(edu.degree)}</p>
         </div>
-        <span style="font-size:12px;color:#64748b;white-space:nowrap;flex-shrink:0;">${esc(edu.dates)}</span>
+        <span style="font-size:13px;color:#64748b;white-space:nowrap;flex-shrink:0;">${esc(edu.dates)}</span>
       </div>`,
     )
     .join('');
@@ -102,15 +102,15 @@ const buildResumeHtml = (data: ResumeData, selectedFont: string): string => {
 <body>
   <div id="resume-root" style="font-family:${fontFamily};width:794px;min-height:1123px;background:#ffffff;color:#0f172a;padding:40px;">
     <header style="padding-bottom:12px;margin-bottom:16px;text-align:center;">
-      <h1 style="font-size:24px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:#0f172a;margin-bottom:6px;">${esc(data.personal.fullName) || 'YOUR NAME'}</h1>
+      <h1 style="font-size:28px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:#0f172a;margin-bottom:6px;">${esc(data.personal.fullName) || 'YOUR NAME'}</h1>
       ${titlesHtml}
-      <div style="display:flex;flex-wrap:wrap;justify-content:center;font-size:12px;color:#475569;">${contactHtml}</div>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;font-size:13px;color:#475569;">${contactHtml}</div>
     </header>
-    ${data.personal.summary ? `<section style="margin-bottom:16px;">${sectionHeader('Professional Summary')}<p style="font-size:13px;line-height:1.625;color:#334155;">${esc(data.personal.summary)}</p></section>` : ''}
+    ${data.personal.summary ? `<section style="margin-bottom:16px;">${sectionHeader('Professional Summary')}<p style="font-size:14px;line-height:1.625;color:#334155;">${esc(data.personal.summary)}</p></section>` : ''}
     ${data.experience.length ? `<section style="margin-bottom:16px;">${sectionHeader('Work Experience')}${experienceHtml}</section>` : ''}
     ${data.education.length ? `<section style="margin-bottom:16px;">${sectionHeader('Education')}${educationHtml}</section>` : ''}
-    ${data.skills.length ? `<section style="margin-bottom:16px;">${sectionHeader('Skills')}<p style="font-size:13px;line-height:1.625;color:#334155;">${esc(data.skills.join(' \xB7 '))}</p></section>` : ''}
-    ${data.certifications.length ? `<section>${sectionHeader('Certifications')}${data.certifications.map((c) => `<div style="display:flex;align-items:baseline;margin-bottom:4px;"><span style="font-size:13px;color:#334155;width:16px;flex-shrink:0;">&#8226;</span><span style="font-size:13px;color:#334155;">${esc(c)}</span></div>`).join('')}</section>` : ''}
+    ${data.skills.length ? `<section style="margin-bottom:16px;">${sectionHeader('Skills')}<p style="font-size:14px;line-height:1.625;color:#334155;">${esc(data.skills.join(' \xB7 '))}</p></section>` : ''}
+    ${data.certifications.length ? `<section style="sectionHeader('Certifications')}${data.certifications.map((c) => `<div style="display:flex;align-items:baseline;margin-bottom:4px;"><span style="font-size:14px;color:#334155;width:16px;flex-shrink:0;">&#8226;</span><span style="font-size:14px;color:#334155;">${esc(c)}</span></div>`).join('')}</section>` : ''}
   </div>
 </body>
 </html>`;

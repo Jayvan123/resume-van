@@ -158,25 +158,25 @@ export const DraftsManager: React.FC = () => {
   };
 
   return (
-    <div ref={dropdownRef} className="relative flex items-center gap-2">
-      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Saved Drafts:</span>
-      <div className="flex items-center gap-1.5">
-        <div className="relative">
+    <div ref={dropdownRef} className="relative flex items-center gap-2 min-w-0">
+      <span className="hidden lg:inline text-xs font-semibold text-slate-500 uppercase tracking-wider flex-shrink-0">Saved Drafts:</span>
+      <div className="flex items-center gap-1.5 min-w-0">
+        <div className="relative min-w-0">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className={`flex items-center justify-between gap-2 min-w-[180px] max-w-[260px] text-sm font-medium border rounded-xl px-3.5 py-2 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-slate-900/10 active:scale-[0.98] ${
+            className={`flex items-center justify-between gap-2 w-[120px] sm:w-[160px] lg:min-w-[180px] lg:max-w-[260px] text-sm font-medium border rounded-xl px-2.5 sm:px-3.5 py-2 sm:py-2 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-slate-900/10 active:scale-[0.98] ${
               activeDraft
               ? 'border-indigo-200 bg-indigo-50/50 text-indigo-900 hover:border-indigo-300'
               : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
           }`}
         >
-          <Folder size={14} className={activeDraft ? 'text-indigo-600' : 'text-slate-400'} />
+          <Folder size={14} className={`flex-shrink-0 ${activeDraft ? 'text-indigo-600' : 'text-slate-400'}`} />
           <span className="truncate flex-1 text-left">
-            {activeDraft ? activeDraft.name : 'No Active Draft'}
+            {activeDraft ? activeDraft.name : 'No Draft'}
           </span>
           {/* Saved flash indicator */}
           {savedFlash && (
-            <span className="flex items-center gap-0.5 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-200 flex-shrink-0 animate-in fade-in zoom-in duration-150">
+            <span className="hidden sm:flex items-center gap-0.5 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-200 flex-shrink-0 animate-in fade-in zoom-in duration-150">
               <Check size={9} strokeWidth={3} />
               Saved
             </span>
@@ -190,7 +190,7 @@ export const DraftsManager: React.FC = () => {
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 mt-1.5 w-[320px] bg-white border border-slate-200/80 shadow-xl rounded-xl z-50 overflow-hidden flex flex-col transition-all duration-200 origin-top-right">
+          <div className="absolute right-0 mt-1.5 w-[min(320px,calc(100vw-2rem))] bg-white border border-slate-200/80 shadow-xl rounded-xl z-50 overflow-hidden flex flex-col transition-all duration-200 origin-top-right">
             {/* Header info */}
             <div className="px-4 py-3 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between">
               <div>
@@ -371,7 +371,7 @@ export const DraftsManager: React.FC = () => {
         onClick={handleQuickSave}
         disabled={drafts.length >= 5}
         title={drafts.length >= 5 ? "Draft limit reached (Max 5)" : `Quick save as ${defaultDraftName} (or Ctrl+S)`}
-        className={`flex items-center justify-center size-9 border bg-white text-slate-500 disabled:opacity-30 disabled:hover:bg-white disabled:cursor-not-allowed rounded-xl shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-slate-900/10 active:scale-[0.95] flex-shrink-0 ${
+        className={`flex items-center justify-center size-10 sm:size-9 border bg-white text-slate-500 disabled:opacity-30 disabled:hover:bg-white disabled:cursor-not-allowed rounded-xl shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-slate-900/10 active:scale-[0.95] flex-shrink-0 ${
           savedFlash
             ? 'border-emerald-300 bg-emerald-50 text-emerald-600 scale-110'
             : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800'
