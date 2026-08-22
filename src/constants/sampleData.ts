@@ -56,6 +56,9 @@ export const sampleResume: ResumeData = {
     'Figma',
     'JIRA',
   ],
+  hardSkills: [],
+  softSkills: [],
+  skillMode: 'combined',
   certifications: [
     'Certified Scrum Product Owner (CSPO)',
     'Google UX Design Certificate',

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { persist } from 'zustand/middleware';
-import { ResumeData, PersonalInfo, ExperienceEntry, EducationEntry, TabId, ResumeDraft } from '@/types/resume.types';
+import { ResumeData, PersonalInfo, ExperienceEntry, EducationEntry, TabId, ResumeDraft, SkillMode } from '@/types/resume.types';
 import { sampleResume } from '@/constants/sampleData';
 
 const initialState: ResumeData = {
@@ -9,6 +9,9 @@ const initialState: ResumeData = {
   experience: [],
   education: [],
   skills: [],
+  hardSkills: [],
+  softSkills: [],
+  skillMode: 'combined',
   certifications: [],
 };
 
@@ -47,21 +50,35 @@ interface ResumeStore {
   addExperience: (experience: Omit<ExperienceEntry, 'id'>) => void;
   updateExperience: (id: string, data: Partial<ExperienceEntry>) => void;
   removeExperience: (id: string) => void;
+  reorderExperience: (fromIndex: number, toIndex: number) => void;
 
   // Education actions
   addEducation: (education: Omit<EducationEntry, 'id'>) => void;
   updateEducation: (id: string, data: Partial<EducationEntry>) => void;
   removeEducation: (id: string) => void;
+  reorderEducation: (fromIndex: number, toIndex: number) => void;
 
-  // Skill actions
+  // Skill actions (combined)
   addSkill: (skill: string) => void;
   updateSkill: (index: number, skill: string) => void;
   removeSkill: (index: number) => void;
+
+  // Skill mode
+  setSkillMode: (mode: SkillMode) => void;
+
+  // Hard skill actions
+  addHardSkill: (skill: string) => void;
+  removeHardSkill: (index: number) => void;
+
+  // Soft skill actions
+  addSoftSkill: (skill: string) => void;
+  removeSoftSkill: (index: number) => void;
 
   // Certification actions
   addCertification: (cert: string) => void;
   updateCertification: (index: number, cert: string) => void;
   removeCertification: (index: number) => void;
+  reorderCertification: (fromIndex: number, toIndex: number) => void;
 
   // Draft actions
   saveDraft: (name: string) => void;
@@ -184,6 +201,14 @@ export const useResumeStore = create<ResumeStore>()(
             updateActiveDraft(state);
           }),
 
+        reorderExperience: (fromIndex, toIndex) =>
+          set((state) => {
+            const items = state.data.experience;
+            const [moved] = items.splice(fromIndex, 1);
+            items.splice(toIndex, 0, moved);
+            updateActiveDraft(state);
+          }),
+
         addEducation: (education) =>
           set((state) => {
             state.data.education.push({
@@ -205,6 +230,14 @@ export const useResumeStore = create<ResumeStore>()(
         removeEducation: (id) =>
           set((state) => {
             state.data.education = state.data.education.filter((e) => e.id !== id);
+            updateActiveDraft(state);
+          }),
+
+        reorderEducation: (fromIndex, toIndex) =>
+          set((state) => {
+            const items = state.data.education;
+            const [moved] = items.splice(fromIndex, 1);
+            items.splice(toIndex, 0, moved);
             updateActiveDraft(state);
           }),
 
@@ -234,6 +267,48 @@ export const useResumeStore = create<ResumeStore>()(
             updateActiveDraft(state);
           }),
 
+        setSkillMode: (mode) =>
+          set((state) => {
+            state.data.skillMode = mode;
+            updateActiveDraft(state);
+          }),
+
+        addHardSkill: (skill) =>
+          set((state) => {
+            const trimmed = skill.trim();
+            if (!state.data.hardSkills) state.data.hardSkills = [];
+            if (trimmed && !state.data.hardSkills.includes(trimmed)) {
+              state.data.hardSkills.push(trimmed);
+              updateActiveDraft(state);
+            }
+          }),
+
+        removeHardSkill: (index) =>
+          set((state) => {
+            if (state.data.hardSkills) {
+              state.data.hardSkills.splice(index, 1);
+              updateActiveDraft(state);
+            }
+          }),
+
+        addSoftSkill: (skill) =>
+          set((state) => {
+            const trimmed = skill.trim();
+            if (!state.data.softSkills) state.data.softSkills = [];
+            if (trimmed && !state.data.softSkills.includes(trimmed)) {
+              state.data.softSkills.push(trimmed);
+              updateActiveDraft(state);
+            }
+          }),
+
+        removeSoftSkill: (index) =>
+          set((state) => {
+            if (state.data.softSkills) {
+              state.data.softSkills.splice(index, 1);
+              updateActiveDraft(state);
+            }
+          }),
+
         addCertification: (cert) =>
           set((state) => {
             const trimmed = cert.trim();
@@ -257,6 +332,14 @@ export const useResumeStore = create<ResumeStore>()(
         removeCertification: (index) =>
           set((state) => {
             state.data.certifications.splice(index, 1);
+            updateActiveDraft(state);
+          }),
+
+        reorderCertification: (fromIndex, toIndex) =>
+          set((state) => {
+            const items = state.data.certifications;
+            const [moved] = items.splice(fromIndex, 1);
+            items.splice(toIndex, 0, moved);
             updateActiveDraft(state);
           }),
 
@@ -377,7 +460,7 @@ export const useResumeStore = create<ResumeStore>()(
       }),
       {
         name: 'resume-van-storage',
-        version: 1,
+        version: 2,
         // Persist workspace data, active draft, drafts list, and selected font
         partialize: (state) => ({
           data: state.data,
@@ -385,6 +468,28 @@ export const useResumeStore = create<ResumeStore>()(
           drafts: state.drafts,
           activeDraftId: state.activeDraftId,
         }),
+        // Migrate old persisted state missing new skill fields
+        migrate: (persistedState: any, version: number) => {
+          if (version < 2) {
+            if (persistedState?.data) {
+              persistedState.data.hardSkills = persistedState.data.hardSkills ?? [];
+              persistedState.data.softSkills = persistedState.data.softSkills ?? [];
+              persistedState.data.skillMode = persistedState.data.skillMode ?? 'combined';
+            }
+            if (persistedState?.drafts) {
+              persistedState.drafts = persistedState.drafts.map((d: any) => ({
+                ...d,
+                data: {
+                  ...d.data,
+                  hardSkills: d.data?.hardSkills ?? [],
+                  softSkills: d.data?.softSkills ?? [],
+                  skillMode: d.data?.skillMode ?? 'combined',
+                },
+              }));
+            }
+          }
+          return persistedState;
+        },
       }
     )
   )

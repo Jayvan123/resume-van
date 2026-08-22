@@ -90,3 +90,42 @@
     @apply font-sans;
   }
 }
+
+/* ── Drag-and-drop card animations ─────────────────────────────── */
+
+/**
+ * [data-drag-card] is the marker attribute we put on every draggable
+ * card so useDragReorder can clone the right element as the ghost.
+ */
+
+/* The slot where the card WAS — fades to a breathing dashed outline */
+@keyframes drag-placeholder-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 0.30; }
+}
+
+.drag-placeholder {
+  animation: drag-placeholder-pulse 1.4s ease-in-out infinite;
+  background: transparent !important;
+  border-style: dashed !important;
+  border-color: #a5b4fc !important; /* indigo-300 */
+  box-shadow: none !important;
+}
+
+.drag-placeholder * {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Drop-target slot — a glowing indigo ring */
+@keyframes drop-target-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px #818cf8, 0 4px 16px rgba(99,102,241,0.15); }
+  50%       { box-shadow: 0 0 0 3px #6366f1, 0 6px 24px rgba(99,102,241,0.25); }
+}
+
+.drag-over-target {
+  animation: drop-target-pulse 0.9s ease-in-out infinite;
+  border-color: #818cf8 !important; /* indigo-400 */
+  transform: translateY(-2px);
+  transition: transform 0.15s ease;
+}

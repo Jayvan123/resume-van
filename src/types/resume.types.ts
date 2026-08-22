@@ -27,11 +27,16 @@ export interface EducationEntry {
   dates: string;
 }
 
+export type SkillMode = 'combined' | 'separated';
+
 export interface ResumeData {
   personal: PersonalInfo;
   experience: ExperienceEntry[];
   education: EducationEntry[];
   skills: string[];
+  hardSkills: string[];
+  softSkills: string[];
+  skillMode: SkillMode;
   certifications: string[];
 }
 
@@ -49,4 +54,3 @@ export interface ResumeDraft {
   selectedFont: string;
   updatedAt: string;
 }
-
