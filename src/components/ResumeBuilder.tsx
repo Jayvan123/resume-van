@@ -109,7 +109,7 @@ const TopBar: React.FC<{
   activeDraftName?: string;
   isSampleData?: boolean;
 }> = ({ onLoadSample, onClear, hasData, selectedFont, onFontChange, isSampleData }) => (
-  <div className="flex items-center justify-between px-4 py-4 md:px-6 md:py-6">
+  <div className="flex items-center justify-between px-4 py-4 md:px-6 md:py-6 mx-auto w-full max-w-[1400px]">
     {/* Left: Logo + subtitle */}
     <div>
       <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-950 leading-none">ResumeVan</h1>
@@ -278,7 +278,7 @@ const ResumePreview: React.FC = () => {
   const fontStyle = FONT_MAPPING[selectedFont] || "Arial, sans-serif";
 
   return (
-    <div className="py-6 pl-2 pr-4 overflow-x-auto">
+    <div className="py-6 px-4 overflow-x-auto">
       {/* Fixed (not max-) width: this box must always lay out text at exactly
           794px — the same width the PDF export renders at — so line-wrapping
           in the preview is never narrower/wider than what gets downloaded.
@@ -516,20 +516,25 @@ export const ResumeBuilder: React.FC = () => {
       </div>
 
       {/* ─── DESKTOP LAYOUT ──────────────────────────────── */}
-      {/* Equal-width split screen: editor (left) / live preview (right) */}
-      <div className="hidden md:flex flex-1 items-stretch">
-        <div className="w-1/2 flex-shrink-0 py-4 pl-4 pr-2">
-          <div className="h-full bg-white flex flex-col rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-            <LeftPanel
-              onDownload={handleDownload}
-              hasData={hasData}
-              isDownloading={isDownloading}
-              activeDraftName={activeDraftName}
-            />
+      {/* editor (left, 40%) / live preview (right, 60%), capped and centered
+          as one group so on wide screens the pair sits in the middle of the
+          viewport with even margins, instead of stretching edge-to-edge and
+          leaving the preview stranded far from the editor. */}
+      <div className="hidden md:flex flex-1 justify-center overflow-hidden">
+        <div className="flex w-full max-w-[1400px] items-stretch">
+          <div className="w-2/5 flex-shrink-0 py-4 pl-4 pr-2">
+            <div className="h-full bg-white flex flex-col rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+              <LeftPanel
+                onDownload={handleDownload}
+                hasData={hasData}
+                isDownloading={isDownloading}
+                activeDraftName={activeDraftName}
+              />
+            </div>
           </div>
-        </div>
-        <div className="w-1/2 flex-shrink-0 h-full overflow-y-auto bg-slate-50/50">
-          <ResumePreview />
+          <div className="w-3/5 flex-shrink-0 h-full overflow-y-auto bg-slate-50/50">
+            <ResumePreview />
+          </div>
         </div>
       </div>
 
