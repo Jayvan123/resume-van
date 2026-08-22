@@ -33,19 +33,21 @@ const buildResumeHtml = (data: ResumeData, selectedFont: string): string => {
     ...(data.personal.links || []),
   ].filter(Boolean);
 
-  const contactHtml = contactItems
-    .map(
-      (item, idx) =>
-        idx < contactItems.length - 1
-          ? `<span>${esc(item)}</span><span style="color:#cbd5e1;margin:0 6px;">|</span>`
-          : `<span>${esc(item)}</span>`,
-    )
-    .join('');
+  const contactHtml = contactItems.length > 0
+    ? contactItems
+      .map(
+        (item, idx) =>
+          idx < contactItems.length - 1
+            ? `<span>${esc(item)}</span><span style="color:#cbd5e1;margin:0 6px;">|</span>`
+            : `<span>${esc(item)}</span>`,
+      )
+      .join('')
+    : '<span>&nbsp;</span>';
 
   const titlesHtml =
     data.personal.titles && data.personal.titles.length > 0
       ? `<div style="font-size:14px;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">${esc(data.personal.titles.join(' | '))}</div>`
-      : '';
+      : `<div style="font-size:14px;font-weight:700;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">&nbsp;</div>`;
 
   const sectionHeader = (title: string) =>
     `<h2 style="font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#1e293b;border-bottom:1px solid #cbd5e1;padding-bottom:4px;margin-bottom:8px;margin-top:0;">${title}</h2>`;
@@ -106,11 +108,26 @@ const buildResumeHtml = (data: ResumeData, selectedFont: string): string => {
       ${titlesHtml}
       <div style="display:flex;flex-wrap:wrap;justify-content:center;font-size:13px;color:#475569;">${contactHtml}</div>
     </header>
-    ${data.personal.summary ? `<section style="margin-bottom:16px;">${sectionHeader('Professional Summary')}<p style="font-size:14px;line-height:1.625;color:#334155;">${esc(data.personal.summary)}</p></section>` : ''}
-    ${data.experience.length ? `<section style="margin-bottom:16px;">${sectionHeader('Work Experience')}${experienceHtml}</section>` : ''}
-    ${data.education.length ? `<section style="margin-bottom:16px;">${sectionHeader('Education')}${educationHtml}</section>` : ''}
-    ${data.skills.length ? `<section style="margin-bottom:16px;">${sectionHeader('Skills')}<p style="font-size:14px;line-height:1.625;color:#334155;">${esc(data.skills.join(' \xB7 '))}</p></section>` : ''}
-    ${data.certifications.length ? `<section style="sectionHeader('Certifications')}${data.certifications.map((c) => `<div style="display:flex;align-items:baseline;margin-bottom:4px;"><span style="font-size:14px;color:#334155;width:16px;flex-shrink:0;">&#8226;</span><span style="font-size:14px;color:#334155;">${esc(c)}</span></div>`).join('')}</section>` : ''}
+    <section style="margin-bottom:16px;">
+      ${sectionHeader('Professional Summary')}
+      <p style="font-size:14px;line-height:1.625;color:#334155;">${esc(data.personal.summary) || '&nbsp;'}</p>
+    </section>
+    <section style="margin-bottom:16px;">
+      ${sectionHeader('Work Experience')}
+      ${experienceHtml || '<div style="font-size:14px;line-height:1.625;color:#334155;">&nbsp;</div>'}
+    </section>
+    <section style="margin-bottom:16px;">
+      ${sectionHeader('Education')}
+      ${educationHtml || '<div style="font-size:14px;line-height:1.625;color:#334155;">&nbsp;</div>'}
+    </section>
+    <section style="margin-bottom:16px;">
+      ${sectionHeader('Skills')}
+      <p style="font-size:14px;line-height:1.625;color:#334155;">${data.skills.length ? esc(data.skills.join(' \xB7 ')) : '&nbsp;'}</p>
+    </section>
+    <section style="margin-bottom:16px;">
+      ${sectionHeader('Certifications')}
+      ${data.certifications.length ? data.certifications.map((c) => `<div style="display:flex;align-items:baseline;margin-bottom:4px;"><span style="font-size:14px;color:#334155;width:16px;flex-shrink:0;">&#8226;</span><span style="font-size:14px;color:#334155;">${esc(c)}</span></div>`).join('') : '<div style="font-size:14px;color:#334155;">&nbsp;</div>'}
+    </section>
   </div>
 </body>
 </html>`;

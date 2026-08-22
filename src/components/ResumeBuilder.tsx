@@ -289,122 +289,129 @@ const ResumePaper: React.FC<{ fontStyle: string }> = ({ fontStyle }) => {
   return (
     <div
       id="resume-preview-paper"
-      className="w-[794px] min-h-[1123px] bg-white px-10 py-10 text-slate-900"
+      className="w-[794px] min-h-[1123px] bg-white px-10 py-10 text-slate-900 text-left"
       style={{ fontFamily: fontStyle }}
     >
       <header className="pb-3 mb-4 text-center">
-          <h1 className="text-[28px] font-extrabold tracking-tight leading-none text-slate-900 mb-1.5">
-            {data.personal.fullName || 'YOUR NAME'}
-          </h1>
-          {data.personal.titles && data.personal.titles.length > 0 && (
-            <div className="text-[14px] font-bold text-slate-800 uppercase tracking-[0.08em] mb-2">
-              {data.personal.titles.join(' | ')}
-            </div>
-          )}
-          <div className="flex flex-wrap justify-center gap-x-3 gap-y-0.5 text-[13px] text-slate-600">
-            {[
-              data.personal.location,
-              data.personal.email,
-              data.personal.phone,
-              ...(data.personal.links || [])
-            ]
-              .filter(Boolean)
-              .map((item, idx, arr) => (
-                <React.Fragment key={idx}>
-                  <span>{item}</span>
-                  {idx < arr.length - 1 && <span className="text-slate-300">|</span>}
-                </React.Fragment>
-              ))}
+        <h1 className="text-[28px] font-extrabold tracking-tight leading-none text-slate-900 mb-1.5">
+          {data.personal.fullName || 'YOUR NAME'}
+        </h1>
+        {data.personal.titles && data.personal.titles.length > 0 ? (
+          <div className="text-[14px] font-bold text-slate-800 uppercase tracking-[0.08em] mb-2">
+            {data.personal.titles.join(' | ')}
           </div>
-        </header>
-
-        {data.personal.summary && (
-          <section className="mb-4">
-            <h2 className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
-              Professional Summary
-            </h2>
-            <p className="text-[14px] leading-relaxed text-slate-700">
-              {data.personal.summary}
-            </p>
-          </section>
+        ) : (
+          <div className="text-[14px] font-bold text-slate-400 uppercase tracking-[0.08em] mb-2">&nbsp;</div>
         )}
+        <div className="flex flex-wrap justify-center gap-x-3 gap-y-0.5 text-[13px] text-slate-600">
+          {[
+            data.personal.location,
+            data.personal.email,
+            data.personal.phone,
+            ...(data.personal.links || [])
+          ]
+            .filter(Boolean)
+            .map((item, idx, arr) => (
+              <React.Fragment key={idx}>
+                <span>{item}</span>
+                {idx < arr.length - 1 && <span className="text-slate-300">|</span>}
+              </React.Fragment>
+            ))}
+          {(!data.personal.location && !data.personal.email && !data.personal.phone && (!data.personal.links || data.personal.links.length === 0)) && (
+            <span>&nbsp;</span>
+          )}
+        </div>
+      </header>
 
-        {data.experience.length > 0 && (
-          <section className="mb-4">
-            <h2 className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3">
-              Work Experience
-            </h2>
-            <div className="space-y-4">
-              {data.experience.map((exp) => (
-                <div key={exp.id}>
-                  <div className="flex items-baseline justify-between gap-4 mb-0.5">
-                    <div>
-                      <span className="text-[14.5px] font-bold text-slate-900">
-                        {exp.role}
-                      </span>
-                      <span className="text-[14px] text-slate-600 ml-1.5">— {exp.company}</span>
-                    </div>
-                    <span className="text-[13px] text-slate-500 whitespace-nowrap flex-shrink-0">
-                      {exp.dates}
-                    </span>
-                  </div>
-                  {exp.description && (
-                    <div className="text-[13.5px] leading-relaxed text-slate-700 whitespace-pre-line pl-3 border-l border-slate-200 mt-1">
-                      {exp.description}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+      <section className="mb-4">
+        <h2 className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
+          Professional Summary
+        </h2>
+        <p className="text-[14px] leading-relaxed text-slate-700">
+          {data.personal.summary || '\u00A0'}
+        </p>
+      </section>
 
-        {data.education.length > 0 && (
-          <section className="mb-4">
-            <h2 className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3">
-              Education
-            </h2>
-            <div className="space-y-2.5">
-              {data.education.map((edu) => (
-                <div key={edu.id} className="flex items-baseline justify-between gap-4">
+      <section className="mb-4">
+        <h2 className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3">
+          Work Experience
+        </h2>
+        <div className="space-y-4">
+          {data.experience.length > 0 ? (
+            data.experience.map((exp) => (
+              <div key={exp.id}>
+                <div className="flex items-baseline justify-between gap-4 mb-0.5">
                   <div>
                     <span className="text-[14.5px] font-bold text-slate-900">
-                      {edu.school}
+                      {exp.role}
                     </span>
-                    <p className="text-[13.5px] text-slate-600 mt-0.5">{edu.degree}</p>
+                    <span className="text-[14px] text-slate-600 ml-1.5">— {exp.company}</span>
                   </div>
                   <span className="text-[13px] text-slate-500 whitespace-nowrap flex-shrink-0">
-                    {edu.dates}
+                    {exp.dates}
                   </span>
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
+                {exp.description && (
+                  <div className="text-[13.5px] leading-relaxed text-slate-700 whitespace-pre-line pl-3 border-l border-slate-200 mt-1">
+                    {exp.description}
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="text-[14px] leading-relaxed text-slate-700">&nbsp;</div>
+          )}
+        </div>
+      </section>
 
-        {data.skills.length > 0 && (
-          <section className="mb-4">
-            <h2 className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
-              Skills
-            </h2>
-            <p className="text-[14px] leading-relaxed text-slate-700">
-              {data.skills.join(' · ')}
-            </p>
-          </section>
-        )}
+      <section className="mb-4">
+        <h2 className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3">
+          Education
+        </h2>
+        <div className="space-y-2.5">
+          {data.education.length > 0 ? (
+            data.education.map((edu) => (
+              <div key={edu.id} className="flex items-baseline justify-between gap-4">
+                <div>
+                  <span className="text-[14.5px] font-bold text-slate-900">
+                    {edu.school}
+                  </span>
+                  <p className="text-[13.5px] text-slate-600 mt-0.5">{edu.degree}</p>
+                </div>
+                <span className="text-[13px] text-slate-500 whitespace-nowrap flex-shrink-0">
+                  {edu.dates}
+                </span>
+              </div>
+            ))
+          ) : (
+            <div className="text-[14px] leading-relaxed text-slate-700">&nbsp;</div>
+          )}
+        </div>
+      </section>
 
-        {data.certifications.length > 0 && (
-          <section>
-            <h2 className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
-              Certifications
-            </h2>
-            <ul className="list-disc list-inside text-[14px] text-slate-700 space-y-1">
-              {data.certifications.map((cert, index) => (
-                <li key={index}>{cert}</li>
-              ))}
-            </ul>
-          </section>
+      <section className="mb-4">
+        <h2 className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
+          Skills
+        </h2>
+        <p className="text-[14px] leading-relaxed text-slate-700">
+          {data.skills.length > 0 ? data.skills.join(' · ') : '\u00A0'}
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
+          Certifications
+        </h2>
+        {data.certifications.length > 0 ? (
+          <ul className="list-disc list-inside text-[14px] text-slate-700 space-y-1">
+            {data.certifications.map((cert, index) => (
+              <li key={index}>{cert}</li>
+            ))}
+          </ul>
+        ) : (
+          <div className="text-[14px] leading-relaxed text-slate-700">&nbsp;</div>
         )}
+      </section>
     </div>
   );
 };
