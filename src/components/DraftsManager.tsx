@@ -41,6 +41,7 @@ export const DraftsManager: React.FC = () => {
   const [editingDraftName, setEditingDraftName] = React.useState('');
   const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null);
   const [confirmLoadId, setConfirmLoadId] = React.useState<string | null>(null);
+  const [savedFlash, setSavedFlash] = React.useState(false);
 
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
@@ -55,6 +56,27 @@ export const DraftsManager: React.FC = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // ── Ctrl+S / Cmd+S global keyboard shortcut ────────────────────────────────
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        if (!activeDraftId) {
+          // No active draft → create one automatically with a generated name
+          if (drafts.length < 5) {
+            saveDraft('');
+          }
+        }
+        // If active draft exists it is already synced live on every keystroke —
+        // just flash the indicator so the user gets visual confirmation.
+        setSavedFlash(true);
+        setTimeout(() => setSavedFlash(false), 1800);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [activeDraftId, drafts.length, saveDraft]);
 
   const activeDraft = drafts.find((d) => d.id === activeDraftId);
 
@@ -88,6 +110,8 @@ export const DraftsManager: React.FC = () => {
     e.preventDefault();
     saveDraft(newDraftName.trim());
     setNewDraftName('');
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 1800);
     setIsOpen(false); // Close dropdown on save to provide a smooth, focused transition
   };
 
@@ -120,6 +144,8 @@ export const DraftsManager: React.FC = () => {
     e.stopPropagation();
     if (drafts.length >= 5) return;
     saveDraft('');
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 1800);
   };
 
   const handleLoadClick = (id: string) => {
@@ -148,6 +174,13 @@ export const DraftsManager: React.FC = () => {
           <span className="truncate flex-1 text-left">
             {activeDraft ? activeDraft.name : 'No Active Draft'}
           </span>
+          {/* Saved flash indicator */}
+          {savedFlash && (
+            <span className="flex items-center gap-0.5 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-200 flex-shrink-0 animate-in fade-in zoom-in duration-150">
+              <Check size={9} strokeWidth={3} />
+              Saved
+            </span>
+          )}
           <ChevronDown
             size={14}
             className={`text-slate-500 transition-transform duration-200 flex-shrink-0 ${
@@ -172,18 +205,21 @@ export const DraftsManager: React.FC = () => {
                   </p>
                 )}
               </div>
-              {activeDraft && (
-                <button
-                  onClick={() => {
-                    closeActiveDraft();
-                    setIsOpen(false);
-                  }}
-                  title="Close draft (keep edits in active workspace)"
-                  className="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-200/60 rounded-md transition-colors"
-                >
-                  <X size={12} />
-                </button>
-              )}
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-slate-400 font-medium">Ctrl+S to save</span>
+                {activeDraft && (
+                  <button
+                    onClick={() => {
+                      closeActiveDraft();
+                      setIsOpen(false);
+                    }}
+                    title="Close draft (keep edits in active workspace)"
+                    className="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-200/60 rounded-md transition-colors"
+                  >
+                    <X size={12} />
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Quick Save form */}
@@ -334,10 +370,14 @@ export const DraftsManager: React.FC = () => {
       <button
         onClick={handleQuickSave}
         disabled={drafts.length >= 5}
-        title={drafts.length >= 5 ? "Draft limit reached (Max 5)" : `Quick save as ${defaultDraftName}`}
-        className="flex items-center justify-center size-9 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 disabled:opacity-30 disabled:hover:bg-white disabled:cursor-not-allowed rounded-xl shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-slate-900/10 active:scale-[0.95] flex-shrink-0"
+        title={drafts.length >= 5 ? "Draft limit reached (Max 5)" : `Quick save as ${defaultDraftName} (or Ctrl+S)`}
+        className={`flex items-center justify-center size-9 border bg-white text-slate-500 disabled:opacity-30 disabled:hover:bg-white disabled:cursor-not-allowed rounded-xl shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-slate-900/10 active:scale-[0.95] flex-shrink-0 ${
+          savedFlash
+            ? 'border-emerald-300 bg-emerald-50 text-emerald-600 scale-110'
+            : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800'
+        }`}
       >
-        <Plus size={15} />
+        {savedFlash ? <Check size={15} strokeWidth={2.5} /> : <Plus size={15} />}
       </button>
     </div>
 

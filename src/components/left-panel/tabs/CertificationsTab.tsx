@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { useResumeStore } from '@/lib/store/resume.slice';
-import { Plus, Trash2, Award } from 'lucide-react';
+import { useDragReorder } from '@/hooks/useDragReorder';
+import { Plus, Trash2, Award, GripVertical } from 'lucide-react';
 
 export const CertificationsTab: React.FC = () => {
-  const { data, addCertification, removeCertification, updateCertification } = useResumeStore();
+  const { data, addCertification, removeCertification, updateCertification, reorderCertification } = useResumeStore();
   const [newCert, setNewCert] = useState('');
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
+
+  const { dragIndex, overIndex, getDragHandleProps, getItemProps } = useDragReorder(reorderCertification);
 
   const handleAddOrSave = () => {
     if (editingIdx !== null) {
@@ -75,23 +78,55 @@ export const CertificationsTab: React.FC = () => {
       </div>
 
       {data.certifications.length > 0 ? (
-        <ul className="space-y-2.5">
+        <div className="space-y-2">
+          {data.certifications.length > 1 && editingIdx === null && (
+            <p className="text-[11px] text-slate-400 flex items-center gap-1.5 pl-1">
+              <GripVertical size={11} className="text-slate-300" />
+              Drag the handle to reorder
+            </p>
+          )}
           {data.certifications.map((cert, index) => {
             const isEditing = editingIdx === index;
+            const isDragging = dragIndex === index;
+            const isOver = overIndex === index && dragIndex !== null && dragIndex !== index;
+
             return (
-              <li
+              <div
                 key={index}
-                className={`flex items-center justify-between gap-3 rounded-2xl border p-4 shadow-sm transition-all select-none ${
-                  isEditing
-                    ? 'border-indigo-300 bg-indigo-50/30 ring-2 ring-indigo-600/5'
-                    : 'border-slate-200 bg-white hover:shadow-md cursor-pointer'
-                }`}
+                data-drag-card
+                {...(editingIdx === null ? getItemProps(index) : {})}
+                className={[
+                  'flex items-center justify-between gap-3 rounded-2xl border p-4 shadow-sm',
+                  'transition-transform duration-200 select-none',
+                  isDragging  ? 'drag-placeholder'   : '',
+                  isOver      ? 'drag-over-target'   : '',
+                  isEditing && !isDragging && !isOver
+                    ? 'border-indigo-300 bg-indigo-50/30 ring-2 ring-indigo-600/5' : '',
+                  !isDragging && !isOver && !isEditing
+                    ? 'border-slate-200 bg-white hover:shadow-md cursor-pointer' : '',
+                ].join(' ')}
                 onClick={(e) => {
                   if ((e.target as HTMLElement).closest('button')) return;
-                  setEditingIdx(index);
-                  setNewCert(cert);
+                  if ((e.target as HTMLElement).closest('[data-grip]')) return;
+                  if (!isDragging && dragIndex === null) {
+                    setEditingIdx(index);
+                    setNewCert(cert);
+                  }
                 }}
               >
+                {/* Drag handle */}
+                {editingIdx === null && (
+                  <div
+                    {...getDragHandleProps(index)}
+                    data-grip="true"
+                    className="flex-shrink-0 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors p-0.5 rounded"
+                    title="Drag to reorder"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <GripVertical size={16} />
+                  </div>
+                )}
+
                 <div className="flex min-w-0 flex-1 items-center gap-3">
                   <span className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full transition-colors ${
                     isEditing ? 'bg-indigo-100 text-indigo-600' : 'bg-amber-50 text-amber-600'
@@ -107,22 +142,22 @@ export const CertificationsTab: React.FC = () => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (isEditing) {
-                      handleCancel();
-                    }
+                    if (isEditing) handleCancel();
                     removeCertification(index);
                   }}
                   className={`flex-shrink-0 rounded-full p-1.5 transition-colors ${
-                    isEditing ? 'text-indigo-400 hover:bg-indigo-100 hover:text-indigo-700' : 'text-slate-400 hover:bg-red-50 hover:text-red-500'
+                    isEditing
+                      ? 'text-indigo-400 hover:bg-indigo-100 hover:text-indigo-700'
+                      : 'text-slate-400 hover:bg-red-50 hover:text-red-500'
                   }`}
                   title="Remove"
                 >
                   <Trash2 size={13} />
                 </button>
-              </li>
+              </div>
             );
           })}
-        </ul>
+        </div>
       ) : (
         <div className="rounded-2xl border-2 border-dashed border-slate-200 p-8 text-center text-slate-400">
           <p className="text-sm font-medium">No certifications added yet</p>

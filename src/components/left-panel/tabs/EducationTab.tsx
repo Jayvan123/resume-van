@@ -4,15 +4,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { educationSchema } from '@/lib/validations/resume.schema';
 import { Input } from '@/components/ui/input';
 import { useResumeStore } from '@/lib/store/resume.slice';
+import { useDragReorder } from '@/hooks/useDragReorder';
 import { z } from 'zod';
-import { Plus, Pencil, Trash2, X, Check } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Check, GripVertical } from 'lucide-react';
 
 type EducationFormData = z.infer<typeof educationSchema>;
 
 export const EducationTab: React.FC = () => {
-  const { data, addEducation, updateEducation, removeEducation } = useResumeStore();
+  const { data, addEducation, updateEducation, removeEducation, reorderEducation } = useResumeStore();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+
+  const { dragIndex, overIndex, getDragHandleProps, getItemProps } = useDragReorder(reorderEducation);
 
   const {
     register,
@@ -54,36 +57,65 @@ export const EducationTab: React.FC = () => {
     <div className="space-y-4">
       {/* Existing entries */}
       {data.education.length > 0 && (
-        <div className="space-y-2.5">
-          {data.education.map((edu) => (
-            <div
-              key={edu.id}
-              className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-slate-800 text-sm">{edu.school}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{edu.degree} · {edu.dates}</p>
-                </div>
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <button
-                    onClick={() => handleEdit(edu.id)}
-                    className="p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                    title="Edit"
-                  >
-                    <Pencil size={13} />
-                  </button>
-                  <button
-                    onClick={() => removeEducation(edu.id)}
-                    className="p-1.5 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                    title="Delete"
-                  >
-                    <Trash2 size={13} />
-                  </button>
+        <div className="space-y-2">
+          {data.education.length > 1 && !showForm && (
+            <p className="text-[11px] text-slate-400 flex items-center gap-1.5 pl-1">
+              <GripVertical size={11} className="text-slate-300" />
+              Drag the handle to reorder
+            </p>
+          )}
+          {data.education.map((edu, index) => {
+            const isDragging = dragIndex === index;
+            const isOver = overIndex === index && dragIndex !== null && dragIndex !== index;
+
+            return (
+              <div
+                key={edu.id}
+                data-drag-card
+                {...(!showForm ? getItemProps(index) : {})}
+                className={[
+                  'rounded-2xl border bg-white p-4 shadow-sm select-none',
+                  'transition-transform duration-200',
+                  isDragging  ? 'drag-placeholder' : '',
+                  isOver      ? 'drag-over-target' : '',
+                  !isDragging && !isOver ? 'hover:shadow-md' : '',
+                ].join(' ')}
+              >
+                <div className="flex items-start gap-2">
+                  {/* Drag handle */}
+                  {!showForm && (
+                    <div
+                      {...getDragHandleProps(index)}
+                      className="mt-0.5 flex-shrink-0 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors p-0.5 rounded"
+                      title="Drag to reorder"
+                    >
+                      <GripVertical size={16} />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-slate-800 text-sm">{edu.school}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{edu.degree} · {edu.dates}</p>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      onClick={() => handleEdit(edu.id)}
+                      className="p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                      title="Edit"
+                    >
+                      <Pencil size={13} />
+                    </button>
+                    <button
+                      onClick={() => removeEducation(edu.id)}
+                      className="p-1.5 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                      title="Delete"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
