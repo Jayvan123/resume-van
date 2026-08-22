@@ -278,10 +278,15 @@ const ResumePreview: React.FC = () => {
   const fontStyle = FONT_MAPPING[selectedFont] || "Arial, sans-serif";
 
   return (
-    <div className="py-6 pl-2 pr-4">
+    <div className="py-6 pl-2 pr-4 overflow-x-auto">
+      {/* Fixed (not max-) width: this box must always lay out text at exactly
+          794px — the same width the PDF export renders at — so line-wrapping
+          in the preview is never narrower/wider than what gets downloaded.
+          On viewports narrower than 794px this scrolls horizontally instead
+          of shrinking, trading a scrollbar for guaranteed 1:1 fidelity. */}
       <div
         id="resume-preview-paper"
-        className="mx-auto max-w-[660px] min-h-[900px] bg-white border border-slate-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.06)] px-10 py-10 text-slate-900"
+        className="mx-auto w-[794px] min-h-[1123px] bg-white border border-slate-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.06)] px-10 py-10 text-slate-900"
         style={{ fontFamily: fontStyle }}
       >
         <header className="pb-3 mb-4 text-center">
@@ -310,83 +315,93 @@ const ResumePreview: React.FC = () => {
           </div>
         </header>
 
-        <section className="mb-4">
-          <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
-            Professional Summary
-          </h2>
-          <p className="text-[13px] leading-relaxed text-slate-700">
-            {data.personal.summary}
-          </p>
-        </section>
+        {data.personal.summary && (
+          <section className="mb-4">
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
+              Professional Summary
+            </h2>
+            <p className="text-[13px] leading-relaxed text-slate-700">
+              {data.personal.summary}
+            </p>
+          </section>
+        )}
 
-        <section className="mb-4">
-          <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3">
-            Work Experience
-          </h2>
-          <div className="space-y-4">
-            {data.experience.map((exp) => (
-              <div key={exp.id}>
-                <div className="flex items-baseline justify-between gap-4 mb-0.5">
+        {data.experience.length > 0 && (
+          <section className="mb-4">
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3">
+              Work Experience
+            </h2>
+            <div className="space-y-4">
+              {data.experience.map((exp) => (
+                <div key={exp.id}>
+                  <div className="flex items-baseline justify-between gap-4 mb-0.5">
+                    <div>
+                      <span className="text-[13.5px] font-bold text-slate-900">
+                        {exp.role}
+                      </span>
+                      <span className="text-[13px] text-slate-600 ml-1.5">— {exp.company}</span>
+                    </div>
+                    <span className="text-[12px] text-slate-500 whitespace-nowrap flex-shrink-0">
+                      {exp.dates}
+                    </span>
+                  </div>
+                  {exp.description && (
+                    <div className="text-[12.5px] leading-relaxed text-slate-700 whitespace-pre-line pl-3 border-l border-slate-200 mt-1">
+                      {exp.description}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {data.education.length > 0 && (
+          <section className="mb-4">
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3">
+              Education
+            </h2>
+            <div className="space-y-2.5">
+              {data.education.map((edu) => (
+                <div key={edu.id} className="flex items-baseline justify-between gap-4">
                   <div>
                     <span className="text-[13.5px] font-bold text-slate-900">
-                      {exp.role}
+                      {edu.school}
                     </span>
-                    <span className="text-[13px] text-slate-600 ml-1.5">— {exp.company}</span>
+                    <p className="text-[12.5px] text-slate-600 mt-0.5">{edu.degree}</p>
                   </div>
                   <span className="text-[12px] text-slate-500 whitespace-nowrap flex-shrink-0">
-                    {exp.dates}
+                    {edu.dates}
                   </span>
                 </div>
-                {exp.description && (
-                  <div className="text-[12.5px] leading-relaxed text-slate-700 whitespace-pre-line pl-3 border-l border-slate-200 mt-1">
-                    {exp.description}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        )}
 
-        <section className="mb-4">
-          <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-3">
-            Education
-          </h2>
-          <div className="space-y-2.5">
-            {data.education.map((edu) => (
-              <div key={edu.id} className="flex items-baseline justify-between gap-4">
-                <div>
-                  <span className="text-[13.5px] font-bold text-slate-900">
-                    {edu.school}
-                  </span>
-                  <p className="text-[12.5px] text-slate-600 mt-0.5">{edu.degree}</p>
-                </div>
-                <span className="text-[12px] text-slate-500 whitespace-nowrap flex-shrink-0">
-                  {edu.dates}
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
+        {data.skills.length > 0 && (
+          <section className="mb-4">
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
+              Skills
+            </h2>
+            <p className="text-[13px] leading-relaxed text-slate-700">
+              {data.skills.join(' · ')}
+            </p>
+          </section>
+        )}
 
-        <section className="mb-4">
-          <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
-            Skills
-          </h2>
-          <p className="text-[13px] leading-relaxed text-slate-700">
-            {data.skills.join(' · ')}
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
-            Certifications
-          </h2>
-          <ul className="list-disc list-inside text-[13px] text-slate-700 space-y-1">
-            {data.certifications.map((cert, index) => (
-              <li key={index}>{cert}</li>
-            ))}
-          </ul>
-        </section>
+        {data.certifications.length > 0 && (
+          <section>
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-800 border-b border-slate-300 pb-1 mb-2">
+              Certifications
+            </h2>
+            <ul className="list-disc list-inside text-[13px] text-slate-700 space-y-1">
+              {data.certifications.map((cert, index) => (
+                <li key={index}>{cert}</li>
+              ))}
+            </ul>
+          </section>
+        )}
       </div>
     </div>
   );
