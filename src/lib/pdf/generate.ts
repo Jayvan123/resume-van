@@ -49,8 +49,13 @@ const buildResumeHtml = (data: ResumeData, selectedFont: string): string => {
       ? `<div style="font-size:14px;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">${esc(data.personal.titles.join(' | '))}</div>`
       : `<div style="font-size:14px;font-weight:700;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">&nbsp;</div>`;
 
-  const sectionHeader = (title: string) =>
-    `<h2 style="font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#1e293b;border-bottom:1px solid #cbd5e1;padding-bottom:4px;margin-bottom:8px;margin-top:0;">${title}</h2>`;
+  // html2canvas does not reproduce the browser's line-height/leading around
+  // text the way a real browser does, so an identical padding-bottom renders
+  // a visibly tighter text-to-divider gap in the rasterized PDF than in the
+  // live preview. Compensate with a larger padding-bottom here so the two
+  // render the same visual gap (tuned empirically against the live preview).
+  const sectionHeader = (title: string, marginBottom = 8) =>
+    `<h2 style="font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#1e293b;border-bottom:1px solid #cbd5e1;padding-bottom:10px;margin-bottom:${marginBottom}px;margin-top:0;">${title}</h2>`;
 
   const experienceHtml = data.experience
     .map(
@@ -113,11 +118,11 @@ const buildResumeHtml = (data: ResumeData, selectedFont: string): string => {
       <p style="font-size:14px;line-height:1.625;color:#334155;">${esc(data.personal.summary) || '&nbsp;'}</p>
     </section>
     <section style="margin-bottom:16px;">
-      ${sectionHeader('Work Experience')}
+      ${sectionHeader('Work Experience', 12)}
       ${experienceHtml || '<div style="font-size:14px;line-height:1.625;color:#334155;">&nbsp;</div>'}
     </section>
     <section style="margin-bottom:16px;">
-      ${sectionHeader('Education')}
+      ${sectionHeader('Education', 12)}
       ${educationHtml || '<div style="font-size:14px;line-height:1.625;color:#334155;">&nbsp;</div>'}
     </section>
     <section style="margin-bottom:16px;">
