@@ -37,14 +37,19 @@ export const educationSchema = z.object({
  * forced to invent a value just to satisfy validation.
  */
 export const aiExtractionSchema = z.object({
+  // OpenAI's Structured Outputs strict mode requires every optional field to
+  // also be `.nullable()` — a bare `.optional()` is rejected at request time
+  // ("uses `.optional()` without `.nullable()`"). The model sends `null` for
+  // anything not present in the user's text; our merge logic below already
+  // treats non-string/non-array values as "not provided".
   personal: z.object({
-    fullName: z.string().optional(),
-    titles: z.array(z.string()).optional(),
-    email: z.string().optional(),
-    phone: z.string().optional(),
-    location: z.string().optional(),
-    links: z.array(z.string()).optional(),
-    summary: z.string().optional(),
+    fullName: z.string().nullable().optional(),
+    titles: z.array(z.string()).nullable().optional(),
+    email: z.string().nullable().optional(),
+    phone: z.string().nullable().optional(),
+    location: z.string().nullable().optional(),
+    links: z.array(z.string()).nullable().optional(),
+    summary: z.string().nullable().optional(),
   }),
   experience: z.array(
     z.object({
