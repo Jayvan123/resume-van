@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import OpenAI from 'openai';
-import { zodResponseFormat } from 'openai/helpers/zod';
+import { GoogleGenAI, ApiError } from '@google/genai';
+import { z } from 'zod';
 // Relative imports on purpose: this function is deployed standalone by
 // Vercel, not bundled through Vite, so the `@/*` tsconfig alias doesn't apply.
 import { aiExtractionSchema } from '../src/lib/validations/resume.schema';
@@ -17,13 +17,20 @@ Rules:
   In both cases, extract whatever resume-relevant information is present, regardless of the order or format it appears in.
 - For each job mentioned, combine any achievements, responsibilities, or bullet-like details into that entry's description as a coherent block of text.
 - Do not editorialize, summarize opinions, or add commentary — extract facts about the person's background only.
-- The professional summary (personal.summary) should be drawn from how the user describes themselves overall, if they do so — do not fabricate one from job history alone.`;
+- The professional summary (personal.summary) should be drawn from how the user describes themselves overall, if they do so — do not fabricate one from job history alone.
+- Respond with JSON matching the provided schema only.`;
 
-// Overridable via OPENAI_MODEL if this stops being available on your account
-// or a newer/cheaper model becomes preferable — see platform.openai.com/docs/models.
-// Must be a model that supports Structured Outputs (gpt-4o-mini / gpt-4o-2024-08-06
-// or later all do).
-const DEFAULT_MODEL = 'gpt-4o-mini';
+// Overridable via GEMINI_MODEL if this stops being available on your account
+// or a newer/cheaper free-tier model becomes preferable — see
+// https://ai.google.dev/gemini-api/docs/models for current model IDs and
+// which ones are free-tier eligible.
+const DEFAULT_MODEL = 'gemini-2.5-flash';
+
+// zod v4's built-in JSON Schema converter — Gemini's `responseJsonSchema`
+// accepts standard JSON Schema directly, so no separate schema library/DSL
+// is needed here (unlike Gemini's older, now-deprecated `responseSchema`
+// field, which used a proprietary OpenAPI-subset format).
+const responseJsonSchema = z.toJSONSchema(aiExtractionSchema);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -43,48 +50,58 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  if (!process.env.OPENAI_API_KEY) {
-    res.status(500).json({ error: "AI Assist isn't configured on the server (missing OPENAI_API_KEY)." });
+  if (!process.env.GEMINI_API_KEY) {
+    res.status(500).json({ error: "AI Assist isn't configured on the server (missing GEMINI_API_KEY)." });
     return;
   }
 
-  const client = new OpenAI();
+  const client = new GoogleGenAI({});
 
   try {
-    const completion = await client.chat.completions.parse({
-      model: process.env.OPENAI_MODEL || DEFAULT_MODEL,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: text },
-      ],
-      response_format: zodResponseFormat(aiExtractionSchema, 'resume_extraction'),
+    const response = await client.models.generateContent({
+      model: process.env.GEMINI_MODEL || DEFAULT_MODEL,
+      contents: text,
+      config: {
+        systemInstruction: SYSTEM_PROMPT,
+        responseMimeType: 'application/json',
+        responseJsonSchema,
+      },
     });
 
-    const message = completion.choices[0]?.message;
-
-    if (message?.refusal) {
-      res.status(422).json({ error: "The AI declined to process that text. Try rephrasing it." });
+    const raw = response.text;
+    if (!raw) {
+      res.status(502).json({ error: 'The AI returned an empty response. Please try again.' });
       return;
     }
 
-    if (!message?.parsed) {
+    let json: unknown;
+    try {
+      json = JSON.parse(raw);
+    } catch {
       res.status(502).json({ error: 'The AI returned an unexpected format. Please try again.' });
       return;
     }
 
-    res.status(200).json({ data: message.parsed });
+    const parsed = aiExtractionSchema.safeParse(json);
+    if (!parsed.success) {
+      console.error('AI Assist: response failed schema validation', parsed.error);
+      res.status(502).json({ error: 'The AI returned data in an unexpected format. Please try again.' });
+      return;
+    }
+
+    res.status(200).json({ data: parsed.data });
   } catch (error) {
-    if (error instanceof OpenAI.AuthenticationError) {
-      console.error('AI Assist: OpenAI authentication failed', error);
-      res.status(500).json({ error: 'AI Assist is misconfigured on the server (invalid API key).' });
-    } else if (error instanceof OpenAI.RateLimitError) {
-      res.status(429).json({ error: 'AI Assist is receiving too many requests right now. Please try again shortly.' });
-    } else if (error instanceof OpenAI.BadRequestError) {
-      console.error('AI Assist: bad request to OpenAI', error);
-      res.status(400).json({ error: "Couldn't process that text. Try shortening or rephrasing it." });
-    } else if (error instanceof OpenAI.APIError) {
-      console.error('AI Assist: OpenAI API error', error);
-      res.status(502).json({ error: 'The AI service is temporarily unavailable. Please try again.' });
+    if (error instanceof ApiError) {
+      console.error('AI Assist: Gemini API error', error.status, error.message);
+      if (error.status === 401 || error.status === 403) {
+        res.status(500).json({ error: 'AI Assist is misconfigured on the server (invalid API key).' });
+      } else if (error.status === 429) {
+        res.status(429).json({ error: 'AI Assist is receiving too many requests right now. Please try again shortly.' });
+      } else if (error.status === 400) {
+        res.status(400).json({ error: "Couldn't process that text. Try shortening or rephrasing it." });
+      } else {
+        res.status(502).json({ error: 'The AI service is temporarily unavailable. Please try again.' });
+      }
     } else {
       console.error('AI Assist: unexpected error', error);
       res.status(500).json({ error: 'Something went wrong while structuring your text. Please try again.' });
