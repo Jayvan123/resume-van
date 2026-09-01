@@ -24,7 +24,7 @@ Rules:
 // or a newer/cheaper free-tier model becomes preferable — see
 // https://ai.google.dev/gemini-api/docs/models for current model IDs and
 // which ones are free-tier eligible.
-const DEFAULT_MODEL = 'gemini-2.5-flash';
+const DEFAULT_MODEL = 'gemini-3.6-flash';
 
 // zod v4's built-in JSON Schema converter — Gemini's `responseJsonSchema`
 // accepts standard JSON Schema directly, so no separate schema library/DSL
