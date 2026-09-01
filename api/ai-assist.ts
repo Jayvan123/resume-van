@@ -96,7 +96,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (error.status === 401 || error.status === 403) {
         res.status(500).json({ error: 'AI Assist is misconfigured on the server (invalid API key).' });
       } else if (error.status === 429) {
-        res.status(429).json({ error: 'AI Assist is receiving too many requests right now. Please try again shortly.' });
+        res.status(429).json({ error: isQuotaExceeded(error) ? QUOTA_EXCEEDED_MESSAGE : RATE_LIMITED_MESSAGE });
       } else if (error.status === 400) {
         res.status(400).json({ error: "Couldn't process that text. Try shortening or rephrasing it." });
       } else {
@@ -106,5 +106,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.error('AI Assist: unexpected error', error);
       res.status(500).json({ error: 'Something went wrong while structuring your text. Please try again.' });
     }
+  }
+}
+
+const QUOTA_EXCEEDED_MESSAGE =
+  "You've hit the free-tier usage limit for AI Assist (daily or per-minute quota). This isn't a bug — waiting a few seconds won't necessarily help if it's the daily cap. Try again later, or check your quota at https://ai.google.dev/gemini-api/docs/rate-limits.";
+const RATE_LIMITED_MESSAGE = 'AI Assist is receiving too many requests right now. Please try again shortly.';
+
+// Gemini's 429s cover two different situations that deserve different
+// messages: a short per-minute rate limit (retrying in a few seconds
+// helps) vs. the free tier's daily/quota cap (retrying immediately won't).
+// Google's error body uses the standard google.rpc.Code status string
+// RESOURCE_EXHAUSTED for both quota and rate-limit exhaustion; we treat
+// any 429 with that status as the "quota" case since it's the more
+// actionable, less misleading message of the two.
+function isQuotaExceeded(error: ApiError): boolean {
+  try {
+    const body = JSON.parse(error.message) as { error?: { status?: string } };
+    return body?.error?.status === 'RESOURCE_EXHAUSTED';
+  } catch {
+    return false;
   }
 }
